@@ -2,6 +2,8 @@ package ru.practicum.shareit.user.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.User;
 
@@ -15,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InMemoryUserRepository implements UserRepository {
 
-    private Map<Long, User> usersStorage = new HashMap<>();
+    private final Map<Long, User> usersStorage = new HashMap<>();
     private long lastId = 0;
 
     @Override
@@ -48,19 +50,19 @@ public class InMemoryUserRepository implements UserRepository {
     public User update(Long userId, User user) {
         findMatch(user).ifPresent(user1 -> {
             if (!userId.equals(user1.getId())) {
-                throw new CreateDuplicateEntityException(User.class, user1.getId());
+                throw new ConflictException("User duplicates existing entity");
             }
         });
 
-        User oldUser = findById(userId).orElseThrow(() -> new EntityNotFoundException(User.class, String.format("ID: %s", userId.toString())));
-        oldUser.setName(user.getName() != null ? user.getName() : oldUser.getName());
-        oldUser.setEmail(user.getEmail() != null ? user.getEmail() : oldUser.getEmail());
-        return storage.put(oldUser.getId(), oldUser);
+        User originalUser = findById(userId).orElseThrow(() -> new EntityNotFoundException(User.class, "User id not found in storage"));
+        originalUser.setName(user.getName() != null ? user.getName() : originalUser.getName());
+        originalUser.setEmail(user.getEmail() != null ? user.getEmail() : originalUser.getEmail());
+        return usersStorage.put(originalUser.getId(), originalUser);
     }
 
     @Override
     public void delete(Long userId) {
-
+        usersStorage.remove(userId);
     }
 
     private Optional<User> findMatch(User user) {
