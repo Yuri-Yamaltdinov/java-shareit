@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.HashMap;
@@ -18,13 +17,19 @@ import java.util.stream.Collectors;
 public class InMemoryUserRepository implements UserRepository {
 
     private final Map<Long, User> usersStorage = new HashMap<>();
-    private long lastId = 0;
+    private long lastId = 1;
 
     @Override
     public User create(User user) {
         findMatch(user).ifPresent(user1 -> {
-            throw new ValidationException("User is already existing in storage");
+            throw new ConflictException("User is already existing in storage");
         });
+        String email = user.getEmail();
+        if (usersStorage.values().stream()
+                .map(User::getEmail)
+                .anyMatch(storedEmail -> storedEmail.equals(email))) {
+            throw new ConflictException("User email is already existing in storage");
+        }
         user.setId(lastId++);
         usersStorage.put(user.getId(), user);
         return user;

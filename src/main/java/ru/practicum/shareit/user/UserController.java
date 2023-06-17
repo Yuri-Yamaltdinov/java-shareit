@@ -19,7 +19,6 @@ public class UserController {
 
     private final UserService userService;
 
-    //CRUD - create, read, read all, update, delete
     @PostMapping
     public UserDto create(@RequestBody @Valid UserDto userDto) {
         log.info("Got request to add user {}", userDto);

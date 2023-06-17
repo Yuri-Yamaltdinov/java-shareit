@@ -6,18 +6,15 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @Builder
 public class ItemDto {
     private Long id;
-    @NotBlank(message = "Поле name должно быть заполнено.")
+    @NotBlank(message = "Field name has to be filled.")
     private String name;
-    @NotBlank(message = "Поле description должно быть заполнено.")
+    @NotBlank(message = "Field description has to be filled.")
     private String description;
-    @NotNull(message = "Поле available должно быть заполнено.")
+    @NotNull(message = "Field available has to be filled.")
     private Boolean available;
     private Long requestId;
 }
