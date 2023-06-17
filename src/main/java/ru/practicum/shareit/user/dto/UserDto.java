@@ -10,9 +10,9 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class UserDto {
     private Long id;
-    @NotBlank(message = "Поле name должно быть заполнено.")
+    @NotBlank(message = "Field name has to be filled.")
     private String name;
-    @NotBlank(message = "Поле email должно быть заполнено.")
-    @Email(message = "Введен неправильный формат поля email.")
+    @NotBlank(message = "Filed email has to be filled.")
+    @Email(message = "Incorrect email format.")
     private String email;
 }

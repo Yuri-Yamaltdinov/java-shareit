@@ -10,9 +10,6 @@ import ru.practicum.shareit.user.service.UserService;
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
@@ -23,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     //CRUD - create, read, read all, update, delete
-    @PostMapping()
+    @PostMapping
     public UserDto create(@RequestBody @Valid UserDto userDto) {
         log.info("Got request to add user {}", userDto);
         return userService.create(userDto);
