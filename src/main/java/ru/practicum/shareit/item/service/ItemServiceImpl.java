@@ -32,9 +32,19 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         userService.findById(userId);
-        Item item = ItemMapper.fromDto(itemDto);
-        item.setOwnerId(userId);
-        return ItemMapper.toDto(itemRepository.create(item));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException(Item.class, "Item id not found in storage"));
+
+        if (!item.getOwnerId().equals(userId)) {
+            throw new AccessException(String.format("User with id %d is not the owner of item with id %d",
+                    userId, item.getId()));
+        }
+
+        item.setName(itemDto.getName() != null ? itemDto.getName() : item.getName());
+        item.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : item.getDescription());
+        item.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable());
+
+        return ItemMapper.toDto(itemRepository.update(itemId, item));
     }
 
     @Override
@@ -64,7 +74,7 @@ public class ItemServiceImpl implements ItemService {
                         itemId))
         );
         if (!item.getOwnerId().equals(userId)) {
-            throw new AccessException(String.format("User with id %d is not the owner item with id %d",
+            throw new AccessException(String.format("User with id %d is not the owner of item with id %d",
                     userId, item.getId()));
         }
         itemRepository.delete(itemId);

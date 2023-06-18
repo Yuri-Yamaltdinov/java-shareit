@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -23,6 +24,11 @@ public class UserServiceImpl implements UserService {
         if (userDto.getId() != null) {
             throw new ValidationException("User id should not exist in POST request");
         }
+
+        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+            throw new ConflictException("User email is already existing in storage");
+        }
+
         User user = UserMapper.fromUserDto(userDto);
         return UserMapper.toUserDto(userRepository.create(user));
     }
@@ -44,8 +50,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(Long userId, UserDto userDto) {
-        findById(userId);
-        User user = UserMapper.fromUserDto(userDto);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, "User id not found in storage"));
+
+        if (!user.getEmail().equals(userDto.getEmail())) {
+            if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+                throw new ConflictException("User email is already existing in storage");
+            }
+        }
+        user.setName(userDto.getName() != null ? userDto.getName() : user.getName());
+        user.setEmail(userDto.getEmail() != null ? userDto.getEmail() : user.getEmail());
         return UserMapper.toUserDto(userRepository.update(userId, user));
     }
 

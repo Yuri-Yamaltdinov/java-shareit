@@ -2,8 +2,6 @@ package ru.practicum.shareit.user.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exception.ConflictException;
-import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.HashMap;
@@ -21,15 +19,7 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User create(User user) {
-        findMatch(user).ifPresent(user1 -> {
-            throw new ConflictException("User is already existing in storage");
-        });
-        String email = user.getEmail();
-        if (usersStorage.values().stream()
-                .map(User::getEmail)
-                .anyMatch(storedEmail -> storedEmail.equals(email))) {
-            throw new ConflictException("User email is already existing in storage");
-        }
+        //findByEmail(user.getEmail());
         user.setId(lastId++);
         usersStorage.put(user.getId(), user);
         return user;
@@ -53,16 +43,7 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User update(Long userId, User user) {
-        findMatch(user).ifPresent(user1 -> {
-            if (!userId.equals(user1.getId())) {
-                throw new ConflictException("User duplicates existing entity");
-            }
-        });
-
-        User originalUser = findById(userId).orElseThrow(() -> new EntityNotFoundException(User.class, "User id not found in storage"));
-        originalUser.setName(user.getName() != null ? user.getName() : originalUser.getName());
-        originalUser.setEmail(user.getEmail() != null ? user.getEmail() : originalUser.getEmail());
-        return usersStorage.put(originalUser.getId(), originalUser);
+        return usersStorage.put(userId, user);
     }
 
     @Override
@@ -70,10 +51,11 @@ public class InMemoryUserRepository implements UserRepository {
         usersStorage.remove(userId);
     }
 
-    private Optional<User> findMatch(User user) {
-        return usersStorage.values()
-                .stream()
-                .filter(user::equals)
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return usersStorage.values().stream()
+                .filter(u -> u.getEmail().equals(email))
                 .findFirst();
     }
+
 }

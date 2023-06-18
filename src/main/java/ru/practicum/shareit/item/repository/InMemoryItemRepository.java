@@ -36,11 +36,7 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public Item update(Long itemId, Item item) {
-        Item originalItem = itemsStorage.get(itemId);
-        originalItem.setName(item.getName() != null ? item.getName() : originalItem.getName());
-        originalItem.setDescription(item.getDescription() != null ? item.getDescription() : originalItem.getDescription());
-        originalItem.setAvailable(item.getAvailable() != null ? item.getAvailable() : originalItem.getAvailable());
-        return itemsStorage.put(originalItem.getId(), originalItem);
+        return itemsStorage.put(itemId, item);
     }
 
     @Override

@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.util.PostRequestValidationGroup;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -10,9 +11,9 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class UserDto {
     private Long id;
-    @NotBlank(message = "Field name has to be filled.")
+    @NotBlank(groups = PostRequestValidationGroup.class, message = "Field name has to be filled.")
     private String name;
-    @NotBlank(message = "Filed email has to be filled.")
+    @NotBlank(groups = PostRequestValidationGroup.class, message = "Field email has to be filled.")
     @Email(message = "Incorrect email format.")
     private String email;
 }
