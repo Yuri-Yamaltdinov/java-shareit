@@ -78,7 +78,6 @@ public class ItemServiceImpl implements ItemService {
                     userId, item.getId()));
         }
         itemRepository.delete(itemId);
-
     }
 
     @Override

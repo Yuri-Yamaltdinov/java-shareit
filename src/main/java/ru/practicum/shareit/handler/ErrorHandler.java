@@ -52,7 +52,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundEntity(final EntityNotFoundException e) {
-        log.error("404 — Cущность " + e.getEntityName() + " не найдена: EntityNotFoundException");
+        log.error("404 — Cущность  {} не найдена: EntityNotFoundException", e.getEntityName());
         return new ErrorResponse(
                 String.format("Не найдена сущность класса \"%s\".", e.getEntityName() + "\n" +
                         e.getMessage())

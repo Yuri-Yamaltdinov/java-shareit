@@ -19,7 +19,6 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User create(User user) {
-        //findByEmail(user.getEmail());
         user.setId(lastId++);
         usersStorage.put(user.getId(), user);
         return user;

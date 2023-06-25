@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -22,24 +23,28 @@ public class UserController {
 
     @PostMapping
     @Validated(PostRequestValidationGroup.class)
+    @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(@RequestBody @Valid UserDto userDto) {
         log.info("Got request to POST user {}", userDto);
         return userService.create(userDto);
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public UserDto findById(@PathVariable("id") Long id) {
         log.info("Got request to GET user with id {}", id);
         return userService.findById(id);
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<UserDto> findAll() {
         log.info("Got request to GET all users");
         return userService.findAll();
     }
 
     @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public UserDto update(
             @PathVariable("id") Long userId,
             @RequestBody @Valid UserDto userDto) {
@@ -48,6 +53,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable("id") Long id) {
         log.info("Got request to DELETE user with id {}", id);
         userService.delete(id);
