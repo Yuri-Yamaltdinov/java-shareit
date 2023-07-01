@@ -62,6 +62,4 @@ public class ItemController {
         log.info("Got request to GET items with text {}", text);
         return itemService.search(userId, text);
     }
-
-
 }
