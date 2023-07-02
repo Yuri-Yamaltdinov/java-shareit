@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collections;
@@ -23,10 +25,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
-        userService.findById(userId);
+        User user = UserMapper.fromUserDto(userService.findById(userId));
         Item item = ItemMapper.fromDto(itemDto);
-        item.setOwnerId(userId);
-        return ItemMapper.toDto(itemRepository.create(item));
+        item.setOwner(user);
+        return ItemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
@@ -35,7 +37,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException(Item.class, "Item id not found in storage"));
 
-        if (!item.getOwnerId().equals(userId)) {
+        if (!item.getOwner().getId().equals(userId)) {
             throw new AccessException(String.format("User with id %d is not the owner of item with id %d",
                     userId, item.getId()));
         }
@@ -44,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
         item.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : item.getDescription());
         item.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable());
 
-        return ItemMapper.toDto(itemRepository.update(itemId, item));
+        return ItemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
@@ -60,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> findAll(Long userId) {
         userService.findById(userId);
-        return itemRepository.findAll(userId)
+        return itemRepository.findAllByUserId(userId)
                 .stream()
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
@@ -73,11 +75,11 @@ public class ItemServiceImpl implements ItemService {
                 () -> new EntityNotFoundException(Item.class, String.format("Item with id %d not found in storage",
                         itemId))
         );
-        if (!item.getOwnerId().equals(userId)) {
+        if (!item.getOwner().getId().equals(userId)) {
             throw new AccessException(String.format("User with id %d is not the owner of item with id %d",
                     userId, item.getId()));
         }
-        itemRepository.delete(itemId);
+        itemRepository.deleteById(itemId);
     }
 
     @Override

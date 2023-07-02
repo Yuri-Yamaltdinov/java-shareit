@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = UserMapper.fromUserDto(userDto);
-        return UserMapper.toUserDto(userRepository.create(user));
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     @Override
@@ -60,11 +60,11 @@ public class UserServiceImpl implements UserService {
         }
         user.setName(userDto.getName() != null ? userDto.getName() : user.getName());
         user.setEmail(userDto.getEmail() != null ? userDto.getEmail() : user.getEmail());
-        return UserMapper.toUserDto(userRepository.update(userId, user));
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     @Override
     public void delete(Long userId) {
-        userRepository.delete(userId);
+        userRepository.deleteById(userId);
     }
 }
