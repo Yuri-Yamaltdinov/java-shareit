@@ -1,9 +1,14 @@
 package ru.practicum.shareit.item.mapper;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookingsAndComments;
 import ru.practicum.shareit.item.model.Item;
+
+import java.util.List;
 
 @UtilityClass
 public class ItemMapper {
@@ -29,6 +34,23 @@ public class ItemMapper {
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
+                .build();
+    }
+
+    public ItemDtoWithBookingsAndComments toItemDtoWithBookingAndComments(
+            Item item,
+            BookingInfoDto lastBooking,
+            BookingInfoDto nextBooking,
+            List<CommentDto> comments
+    ) {
+        return ItemDtoWithBookingsAndComments.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .lastBooking(lastBooking)
+                .nextBooking(nextBooking)
+                .comments(comments)
                 .build();
     }
 }

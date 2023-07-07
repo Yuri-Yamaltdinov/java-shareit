@@ -6,14 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoInitial;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -26,24 +24,24 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookingDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                             @RequestBody @Valid BookingDto bookingDto) {
-        log.info("Got request to POST booking {}", bookingDto);
-        return bookingService.create(userId, bookingDto);
+                             @RequestBody @Valid BookingDtoInitial bookingDtoInitial) {
+        log.info("Got request to POST booking {}", bookingDtoInitial);
+        return bookingService.create(userId, bookingDtoInitial);
     }
 
     @PatchMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
-    public BookingDto bookingConfirmation(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @PathVariable Long bookingId,
-                                          @RequestParam Boolean approved) {
+    public BookingDto setStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                 @PathVariable Long bookingId,
+                                                 @RequestParam Boolean approved) {
         log.info("Got request to PATCH booking with id {}", bookingId);
-        return bookingService.bookingConfirmation(userId, bookingId, approved);
+        return bookingService.setStatus(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
     public BookingDto getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                     @PathVariable Long bookingId) {
+                                            @PathVariable Long bookingId) {
         log.info("Got request to GET booking with id {}", bookingId);
         return bookingService.findById(userId, bookingId);
     }
@@ -51,7 +49,7 @@ public class BookingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> findAllByState(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                           @RequestParam(defaultValue = "ALL", required = false) String state) {
+                                                  @RequestParam(defaultValue = "ALL", required = false) String state) {
         log.info("Got request to GET all bookings with state {}", state);
         return bookingService.findAllByState(userId, state);
     }
@@ -59,7 +57,7 @@ public class BookingController {
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> getAllByItemOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                              @RequestParam(defaultValue = "ALL", required = false) String state) {
+                                                     @RequestParam(defaultValue = "ALL", required = false) String state) {
         log.info("Got request to GET all bookings by owner id {}", userId);
         return bookingService.findAllByItemOwner(userId, state);
     }
