@@ -32,8 +32,8 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
     public BookingDto setStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @PathVariable Long bookingId,
-                                                 @RequestParam Boolean approved) {
+                                @PathVariable Long bookingId,
+                                @RequestParam Boolean approved) {
         log.info("Got request to PATCH booking with id {}", bookingId);
         return bookingService.setStatus(userId, bookingId, approved);
     }
@@ -41,7 +41,7 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
     public BookingDto getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                            @PathVariable Long bookingId) {
+                                     @PathVariable Long bookingId) {
         log.info("Got request to GET booking with id {}", bookingId);
         return bookingService.findById(userId, bookingId);
     }
@@ -49,7 +49,7 @@ public class BookingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> findAllByState(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                  @RequestParam(defaultValue = "ALL", required = false) String state) {
+                                           @RequestParam(name = "state", defaultValue = "ALL") String state) {
         log.info("Got request to GET all bookings with state {}", state);
         return bookingService.findAllByState(userId, state);
     }
@@ -57,7 +57,7 @@ public class BookingController {
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> getAllByItemOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                     @RequestParam(defaultValue = "ALL", required = false) String state) {
+                                              @RequestParam(name = "state", defaultValue = "ALL") String state) {
         log.info("Got request to GET all bookings by owner id {}", userId);
         return bookingService.findAllByItemOwner(userId, state);
     }

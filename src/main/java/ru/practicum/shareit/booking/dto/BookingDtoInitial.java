@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class BookingDtoInitial {
     private Long id;
-    @Positive(message = "ItemId has to be positive")
+    @Positive(message = "ItemId has to be positive number")
     private Long itemId;
 
     @NotNull(message = "Wrong booking start date")

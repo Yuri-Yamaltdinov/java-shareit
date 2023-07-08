@@ -29,7 +29,6 @@ public class BookingServiceImpl implements BookingService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final UserService userService;
-    private final BookingMapper bookingMapper;
 
     @Override
     @Transactional
@@ -49,15 +48,15 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (item.getOwner().getId().equals(userId)) {
-            throw new ValidationException("User cannot book own item.");
+            throw new EntityNotFoundException(Item.class, "User cannot book own item.");
         }
 
-        Booking booking = bookingMapper.bookingFromDtoInitial(bookingDtoInitial);
+        Booking booking = BookingMapper.bookingFromDtoInitial(bookingDtoInitial, user, item);
         booking.setBooker(user);
         booking.setItem(item);
         booking.setStatus(BookingState.WAITING);
 
-        return bookingMapper.bookingToDto(bookingRepository.save(booking));
+        return BookingMapper.bookingToDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -66,13 +65,13 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
                 () -> new EntityNotFoundException(Booking.class, "Booking id not found in storage"));
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new ValidationException("User is not the owner of the item.");
+            throw new EntityNotFoundException(Booking.class, "User is not the owner of the item.");
         }
         if (booking.getStatus().equals(BookingState.APPROVED)) {
             throw new ValidationException("Booking is already approved.");
         }
         booking.setStatus((approved) ? BookingState.APPROVED : BookingState.REJECTED);
-        return bookingMapper.bookingToDto(bookingRepository.save(booking));
+        return BookingMapper.bookingToDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -82,9 +81,9 @@ public class BookingServiceImpl implements BookingService {
                 () -> new EntityNotFoundException(Booking.class, "Booking id not found in storage"));
         if (!booking.getBooker().getId().equals(userId) &&
                 !booking.getItem().getOwner().getId().equals(userId)) {
-            throw new ValidationException("User is not the owner or booker of the item.");
+            throw new EntityNotFoundException(Booking.class, "User is not the owner or booker of the item.");
         }
-        return bookingMapper.bookingToDto(booking);
+        return BookingMapper.bookingToDto(booking);
     }
 
     @Override
@@ -111,10 +110,10 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStateDto.WAITING);
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingState.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStateDto.REJECTED);
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingState.REJECTED);
                 break;
             default:
                 bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
@@ -122,7 +121,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookings.stream()
-                .map(bookingMapper::bookingToDto)
+                .map(BookingMapper::bookingToDto)
                 .collect(Collectors.toList());
     }
 
@@ -154,17 +153,17 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
                 break;
             case WAITING:
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStateDto.WAITING);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingState.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStateDto.REJECTED);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingState.REJECTED);
                 break;
             default:
                 bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
                 break;
         }
         return bookings.stream()
-                .map(bookingMapper::bookingToDto)
+                .map(BookingMapper::bookingToDto)
                 .collect(Collectors.toList());
     }
 }

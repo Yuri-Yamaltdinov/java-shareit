@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Repository
