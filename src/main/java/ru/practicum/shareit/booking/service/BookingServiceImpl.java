@@ -99,7 +99,7 @@ public class BookingServiceImpl implements BookingService {
 
         switch (bookingStateDto) {
             case CURRENT:
-                bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartAsc(userId,
+                bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId,
                         LocalDateTime.now(),
                         LocalDateTime.now());
                 break;
