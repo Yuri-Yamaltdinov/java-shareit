@@ -71,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Booking is already approved.");
         }
         booking.setStatus((approved) ? BookingState.APPROVED : BookingState.REJECTED);
-        return BookingMapper.bookingToDto(bookingRepository.save(booking));
+        return BookingMapper.bookingToDto(booking);
     }
 
     @Override

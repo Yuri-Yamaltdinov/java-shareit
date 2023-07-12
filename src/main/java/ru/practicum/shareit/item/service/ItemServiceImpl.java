@@ -64,7 +64,7 @@ public class ItemServiceImpl implements ItemService {
         item.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : item.getDescription());
         item.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable());
 
-        return ItemMapper.toDto(itemRepository.save(item));
+        return ItemMapper.toDto(item);
     }
 
     @Override
@@ -129,6 +129,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void delete(Long userId, Long itemId) {
         userService.findById(userId);
         Item item = itemRepository.findById(itemId).orElseThrow(

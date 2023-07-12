@@ -21,11 +21,12 @@ import java.util.List;
 @Validated
 public class ItemController {
     private final ItemService itemService;
+    private static final String USERID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     @Validated(PostRequestValidationGroup.class)
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto create(@RequestHeader(USERID_HEADER) Long userId,
                           @RequestBody @Valid ItemDto itemDto) {
         log.info("Got request to POST item {}", itemDto);
         return itemService.create(userId, itemDto);
@@ -33,14 +34,14 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemDtoWithBookingsAndComments> findAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDtoWithBookingsAndComments> findAll(@RequestHeader(USERID_HEADER) Long userId) {
         log.info("Got request to GET all items by user id {}", userId);
         return itemService.findAll(userId);
     }
 
     @GetMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithBookingsAndComments findById(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDtoWithBookingsAndComments findById(@RequestHeader(USERID_HEADER) Long userId,
                                                    @PathVariable("itemId") Long itemId) {
         log.info("Got request to GET item by id {}", itemId);
         return itemService.findById(userId, itemId);
@@ -48,7 +49,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto update(@RequestHeader(USERID_HEADER) Long userId,
                           @PathVariable("itemId") Long itemId,
                           @RequestBody ItemDto itemDto) {
         log.info("Got request to PATCH item {}", itemDto);
@@ -57,7 +58,7 @@ public class ItemController {
 
     @DeleteMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public void delete(@RequestHeader(USERID_HEADER) Long userId,
                        @PathVariable("itemId") Long itemId) {
         log.info("Got request to DELETE item id {} of user id {}", itemId, userId);
         itemService.delete(userId, itemId);
@@ -65,7 +66,7 @@ public class ItemController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemDto> search(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<ItemDto> search(@RequestHeader(USERID_HEADER) Long userId,
                                 @RequestParam("text") String text) {
         log.info("Got request to GET items with text {}", text);
         return itemService.search(userId, text);
@@ -73,7 +74,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     @ResponseStatus(HttpStatus.OK)
-    public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public CommentDto createComment(@RequestHeader(USERID_HEADER) Long userId,
                                     @PathVariable("itemId") Long itemId,
                                     @RequestBody @Valid CommentDto commentDto) {
         log.info("Got request to POST comment {}", commentDto);

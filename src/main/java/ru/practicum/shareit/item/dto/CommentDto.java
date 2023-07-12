@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
@@ -13,5 +14,6 @@ public class CommentDto {
     @NotBlank(message = "Field text has to be filled.")
     private String text;
     private String authorName;
+    @NotNull
     private LocalDateTime created;
 }
