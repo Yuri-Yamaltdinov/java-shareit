@@ -14,6 +14,5 @@ public class CommentDto {
     @NotBlank(message = "Field text has to be filled.")
     private String text;
     private String authorName;
-    @NotNull
     private LocalDateTime created;
 }
