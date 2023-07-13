@@ -12,6 +12,8 @@ import ru.practicum.shareit.booking.service.BookingService;
 import javax.validation.Valid;
 import java.util.List;
 
+import static ru.practicum.shareit.item.ItemController.USERID_HEADER;
+
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -20,7 +22,6 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
-    private static final String USERID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

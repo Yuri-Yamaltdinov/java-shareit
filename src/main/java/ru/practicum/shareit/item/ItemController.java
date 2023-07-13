@@ -21,7 +21,7 @@ import java.util.List;
 @Validated
 public class ItemController {
     private final ItemService itemService;
-    private static final String USERID_HEADER = "X-Sharer-User-Id";
+    public static final String USERID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     @Validated(PostRequestValidationGroup.class)
