@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingDtoInitial;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 import static ru.practicum.shareit.item.ItemController.USERID_HEADER;
@@ -51,16 +52,20 @@ public class BookingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> findAllByState(@RequestHeader(USERID_HEADER) Long userId,
-                                           @RequestParam(name = "state", defaultValue = "ALL") String state) {
+                                           @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                           @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                           @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("Got request to GET all bookings with state {}", state);
-        return bookingService.findAllByState(userId, state);
+        return bookingService.findAllByState(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
     public List<BookingDto> getAllByItemOwner(@RequestHeader(USERID_HEADER) Long userId,
-                                              @RequestParam(name = "state", defaultValue = "ALL") String state) {
+                                              @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                              @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                              @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("Got request to GET all bookings by owner id {}", userId);
-        return bookingService.findAllByItemOwner(userId, state);
+        return bookingService.findAllByItemOwner(userId, state, from, size);
     }
 }

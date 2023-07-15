@@ -26,22 +26,22 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("User id should not exist in POST request");
         }
 
-        User user = UserMapper.fromUserDto(userDto);
-        return UserMapper.toUserDto(userRepository.save(user));
+        User user = UserMapper.userFromDto(userDto);
+        return UserMapper.userToDto(userRepository.save(user));
     }
 
     @Override
     public UserDto findById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, "User id not found in storage"));
-        return UserMapper.toUserDto(user);
+        return UserMapper.userToDto(user);
     }
 
     @Override
     public List<UserDto> findAll() {
         return userRepository.findAll()
                 .stream()
-                .map(UserMapper::toUserDto)
+                .map(UserMapper::userToDto)
                 .collect(Collectors.toList());
     }
 
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
         user.setName(userDto.getName() != null ? userDto.getName() : user.getName());
         user.setEmail(userDto.getEmail() != null ? userDto.getEmail() : user.getEmail());
-        return UserMapper.toUserDto(user);
+        return UserMapper.userToDto(user);
     }
 
     @Override

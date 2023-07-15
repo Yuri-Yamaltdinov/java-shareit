@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.util.PostRequestValidationGroup;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -34,9 +35,11 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemDtoWithBookingsAndComments> findAll(@RequestHeader(USERID_HEADER) Long userId) {
+    public List<ItemDtoWithBookingsAndComments> findAll(@RequestHeader(USERID_HEADER) Long userId,
+                                                        @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                                        @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("Got request to GET all items by user id {}", userId);
-        return itemService.findAll(userId);
+        return itemService.findAll(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -67,9 +70,11 @@ public class ItemController {
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> search(@RequestHeader(USERID_HEADER) Long userId,
-                                @RequestParam("text") String text) {
+                                @RequestParam("text") String text,
+                                @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("Got request to GET items with text {}", text);
-        return itemService.search(userId, text);
+        return itemService.search(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

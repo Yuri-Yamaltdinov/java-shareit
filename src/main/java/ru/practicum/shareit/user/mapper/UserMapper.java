@@ -8,7 +8,7 @@ import ru.practicum.shareit.user.model.User;
 
 @UtilityClass
 public class UserMapper {
-    public UserDto toUserDto(User user) {
+    public UserDto userToDto(User user) {
         if (user == null) {
             throw new ValidationException("User entity is null");
         }
@@ -19,7 +19,7 @@ public class UserMapper {
                 .build();
     }
 
-    public User fromUserDto(UserDto userDto) {
+    public User userFromDto(UserDto userDto) {
         if (userDto == null) {
             throw new ValidationException("UserDto entity is null");
         }
