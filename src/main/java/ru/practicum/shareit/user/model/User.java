@@ -1,18 +1,28 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-import javax.validation.constraints.Email;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "Field name has is empty.")
+
+    @NotBlank
     private String name;
-    @NotBlank(message = "Field email has is empty.")
-    @Email(message = "Incorrect email format.")
+
+    @Column(length = 512, unique = true)
+    @NotBlank
+    @EqualsAndHashCode.Include
     private String email;
 }

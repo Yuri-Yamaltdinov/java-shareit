@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dto.UserBookingDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -26,6 +27,12 @@ public class UserMapper {
                 .id(userDto.getId())
                 .name(userDto.getName())
                 .email(userDto.getEmail())
+                .build();
+    }
+
+    public UserBookingDto userToUserBookingDto(User user) {
+        return UserBookingDto.builder()
+                .id(user.getId())
                 .build();
     }
 
