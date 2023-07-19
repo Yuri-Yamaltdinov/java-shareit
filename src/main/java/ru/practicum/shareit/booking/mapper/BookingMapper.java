@@ -16,6 +16,7 @@ import ru.practicum.shareit.user.model.User;
 @RequiredArgsConstructor
 public class BookingMapper {
     private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
 
     public Booking bookingFromDtoInitial(BookingDtoInitial bookingDtoInitial,
                                          User booker, Item item) {
@@ -33,7 +34,7 @@ public class BookingMapper {
     public BookingDto bookingToDto(Booking booking) {
         return BookingDto.builder()
                 .id(booking.getId())
-                .booker(UserMapper.userToUserBookingDto(booking.getBooker()))
+                .booker(userMapper.userToUserBookingDto(booking.getBooker()))
                 .item(itemMapper.itemToItemBookingDto(booking.getItem()))
                 .start(booking.getStart())
                 .end(booking.getEnd())

@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.util.PostRequestValidationGroup;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -38,9 +39,10 @@ public class UserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> findAll() {
+    public List<UserDto> findAll(@RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                 @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("Got request to GET all users");
-        return userService.findAll();
+        return userService.findAll(from, size);
     }
 
     @PatchMapping("/{id}")

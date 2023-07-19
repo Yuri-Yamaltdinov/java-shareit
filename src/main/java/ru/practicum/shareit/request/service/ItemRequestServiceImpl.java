@@ -21,11 +21,12 @@ import java.util.stream.Collectors;
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final UserService userService;
     private final ItemRequestRepository itemRequestRepository;
+    private final UserMapper userMapper;
     private final ItemRequestMapper itemRequestMapper;
 
     @Override
     public ItemRequestDto create(Long userId, ItemRequestDto itemRequestDto) {
-        User requestor = UserMapper.userFromDto(userService.findById(userId));
+        User requestor = userMapper.userFromDto(userService.findById(userId));
         ItemRequest itemRequest = itemRequestMapper.itemRequestFromDto(itemRequestDto);
         itemRequest.setRequestor(requestor);
         return itemRequestMapper.itemRequestToDto(itemRequestRepository.save(itemRequest));

@@ -42,13 +42,14 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final CommentMapper commentMapper;
     private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
     private final BookingMapper bookingMapper;
     private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
     public ItemDto create(Long userId, ItemDto itemDto) {
-        User user = UserMapper.userFromDto(userService.findById(userId));
+        User user = userMapper.userFromDto(userService.findById(userId));
         Item item = itemMapper.itemFromDto(itemDto);
 
         if (itemDto.getRequestId() != null) {
@@ -87,6 +88,7 @@ public class ItemServiceImpl implements ItemService {
                 () -> new EntityNotFoundException(Item.class, String.format("Item with id %d not found in storage",
                         itemId))
         );
+        ItemDtoWithBookingsAndComments itemDtoWithBookingsAndComments = itemMapper.itemToItemDtoWithBookingAndComments(item);
 
         BookingInfoDto lastBookingDto = null;
         BookingInfoDto nextBookingDto = null;
@@ -99,6 +101,7 @@ public class ItemServiceImpl implements ItemService {
                             LocalDateTime.now())
                     .map(bookingMapper::bookingToInfoDto)
                     .orElse(null);
+            itemDtoWithBookingsAndComments.setLastBooking(lastBookingDto);
 
             nextBookingDto = bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
                             item.getId(),
@@ -106,13 +109,16 @@ public class ItemServiceImpl implements ItemService {
                             LocalDateTime.now())
                     .map(bookingMapper::bookingToInfoDto)
                     .orElse(null);
+            itemDtoWithBookingsAndComments.setNextBooking(nextBookingDto);
         }
 
-        List<CommentDto> comments = commentRepository.findByItemIdOrderByCreatedDesc(itemId).stream()
+        List<CommentDto> commentsDto = commentRepository.findByItemIdOrderByCreatedDesc(itemId).stream()
                 .map(commentMapper::commentToDto)
                 .collect(Collectors.toList());
+        itemDtoWithBookingsAndComments.setComments(commentsDto);
 
-        return itemMapper.itemToItemDtoWithBookingAndComments(item, lastBookingDto, nextBookingDto, comments);
+        //return itemMapper.itemToItemDtoWithBookingAndComments(item, lastBookingDto, nextBookingDto, comments);
+        return itemDtoWithBookingsAndComments;
     }
 
     @Override
@@ -123,20 +129,24 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDtoWithBookingsAndComments> items = itemRepository.findAllByUserId(userId, page)
                 .stream()
                 .map(item -> {
+                    ItemDtoWithBookingsAndComments itemDtoFull = itemMapper.itemToItemDtoWithBookingAndComments(item);
                     BookingInfoDto lastBookingDto = bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(
                                     item.getId(), BookingState.APPROVED, LocalDateTime.now())
                             .map(bookingMapper::bookingToInfoDto)
                             .orElse(null);
+                    itemDtoFull.setLastBooking(lastBookingDto);
                     BookingInfoDto nextBookingDto = bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
                                     item.getId(), BookingState.APPROVED, LocalDateTime.now())
                             .map(bookingMapper::bookingToInfoDto)
                             .orElse(null);
+                    itemDtoFull.setNextBooking(nextBookingDto);
 
                     List<CommentDto> comments = commentRepository.findByItem(item).stream()
                             .map(commentMapper::commentToDto)
                             .collect(Collectors.toList());
+                    itemDtoFull.setComments(comments);
 
-                    return itemMapper.itemToItemDtoWithBookingAndComments(item, lastBookingDto, nextBookingDto, comments);
+                    return itemDtoFull;
                 })
                 .sorted(Comparator.comparingLong(ItemDtoWithBookingsAndComments::getId))
                 .collect(Collectors.toList());
@@ -179,7 +189,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
-        User author = UserMapper.userFromDto(userService.findById(userId));
+        User author = userMapper.userFromDto(userService.findById(userId));
         Item item = itemRepository.findById(itemId).orElseThrow(
                 () -> new EntityNotFoundException(Item.class, String.format("Item with id %d not found in storage",
                         itemId))

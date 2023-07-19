@@ -1,14 +1,10 @@
 package ru.practicum.shareit.item.mapper;
 
 import org.mapstruct.*;
-import ru.practicum.shareit.booking.dto.BookingInfoDto;
-import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingsAndComments;
 import ru.practicum.shareit.item.model.Item;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
@@ -19,14 +15,15 @@ public interface ItemMapper {
 
     ItemBookingDto itemToItemBookingDto(Item item);
 
-    @Mapping(target = "id", source = "item.id")
+/*    @Mapping(target = "id", source = "item.id")
     ItemDtoWithBookingsAndComments itemToItemDtoWithBookingAndComments(
             Item item,
             BookingInfoDto lastBooking,
             BookingInfoDto nextBooking,
-            List<CommentDto> comments);
+            List<CommentDto> comments);*/
 
-
+    @Mapping(target = "id", source = "item.id")
+    ItemDtoWithBookingsAndComments itemToItemDtoWithBookingAndComments(Item item);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
