@@ -12,6 +12,7 @@ import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -34,6 +35,8 @@ public class ItemRequestServiceUnitTest {
     private ItemRequestRepository itemRequestRepository;
     @Mock
     private ItemRequestMapper itemRequestMapper;
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private ItemRequestServiceImpl itemRequestService;
@@ -72,6 +75,7 @@ public class ItemRequestServiceUnitTest {
                 .build();
 
         when(userService.findById(userId)).thenReturn(userDto);
+        when(userMapper.userFromDto(userDto)).thenReturn(user);
         when(itemRequestMapper.itemRequestFromDto(itemRequestDto)).thenReturn(itemRequest);
         when(itemRequestRepository.save(itemRequest)).thenReturn(expectedItemRequest);
         when(itemRequestMapper.itemRequestToDto(expectedItemRequest)).thenReturn(itemRequestDto);
@@ -133,7 +137,7 @@ public class ItemRequestServiceUnitTest {
         int size = 5;
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         List<ItemRequest> requests = List.of(itemRequest);
-        when(itemRequestRepository.findByRequestorIdNotOrderByCreatedAsc(userId, page)).thenReturn(requests);
+        when(itemRequestRepository.findByRequestorIdOrderByCreatedAsc(userId, page)).thenReturn(requests);
         when(itemRequestMapper.itemRequestToDto(itemRequest)).thenReturn(itemRequestDto);
 
         List<ItemRequestDto> actualRequests = itemRequestService.getAllRequests(userId, from, size);

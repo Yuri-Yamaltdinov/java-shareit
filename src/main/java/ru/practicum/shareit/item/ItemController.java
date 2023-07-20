@@ -60,7 +60,7 @@ public class ItemController {
     }
 
     @DeleteMapping("/{itemId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@RequestHeader(USERID_HEADER) Long userId,
                        @PathVariable("itemId") Long itemId) {
         log.info("Got request to DELETE item id {} of user id {}", itemId, userId);

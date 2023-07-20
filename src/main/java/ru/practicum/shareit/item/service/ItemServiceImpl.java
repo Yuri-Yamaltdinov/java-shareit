@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,7 +118,6 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
         itemDtoWithBookingsAndComments.setComments(commentsDto);
 
-        //return itemMapper.itemToItemDtoWithBookingAndComments(item, lastBookingDto, nextBookingDto, comments);
         return itemDtoWithBookingsAndComments;
     }
 
@@ -176,7 +176,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        List<Item> items = itemRepository.search(text, page);
+        Page<Item> items = itemRepository.search(text, page);
 
         if (items.isEmpty()) {
             throw new EntityNotFoundException(Item.class, "Appropriate items not found in storage");

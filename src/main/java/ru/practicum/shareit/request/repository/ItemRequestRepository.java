@@ -12,5 +12,5 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> 
 
     List<ItemRequest> findByRequestorIdOrderByCreatedAsc(Long requestorId);
 
-    List<ItemRequest> findByRequestorIdNotOrderByCreatedAsc(Long requestorId, Pageable page);
+    List<ItemRequest> findByRequestorIdOrderByCreatedAsc(Long requestorId, Pageable page);
 }

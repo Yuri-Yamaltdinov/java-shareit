@@ -1,9 +1,11 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -27,9 +29,12 @@ public class UserServiceImpl implements UserService {
         if (userDto.getId() != null) {
             throw new ValidationException("User id should not exist in POST request");
         }
-
-        User user = userMapper.userFromDto(userDto);
-        return userMapper.userToDto(userRepository.save(user));
+        try {
+            User user = userMapper.userFromDto(userDto);
+            return userMapper.userToDto(userRepository.save(user));
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException("User with email already exists.");
+        }
     }
 
     @Override

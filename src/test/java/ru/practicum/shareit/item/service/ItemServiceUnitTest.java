@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -261,10 +263,11 @@ public class ItemServiceUnitTest {
     void findAll_whenInvoke_thenReturnListItemBooked() {
         PageRequest page = PageRequest.of(from, size);
         List<Item> items = List.of(item);
+        Page<Item> itemsPage = new PageImpl<>(items, page, size);
         ItemDtoWithBookingsAndComments itemDtoWithBookingsAndComments = ItemDtoWithBookingsAndComments.builder().build();
         BookingInfoDto booking = BookingInfoDto.builder().id(1L).build();
         List<Comment> comments = List.of(Comment.builder().build());
-        when(itemRepository.findAllByUserId(userId, page)).thenReturn(items);
+        when(itemRepository.findAllByUserId(userId, page)).thenReturn(itemsPage);
         when(itemMapper.itemToItemDtoWithBookingAndComments(item)).thenReturn(itemDtoWithBookingsAndComments);
         when(bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(any(), any(), any()))
                 .thenReturn(Optional.of(Booking.builder().build()));
@@ -290,7 +293,7 @@ public class ItemServiceUnitTest {
     @Test
     void findAll_whenItemNotFound_thenReturnEmptyListItemBooked() {
         PageRequest page = PageRequest.of(from / size, size);
-        when(itemRepository.findAllByUserId(userId, page)).thenReturn(Collections.emptyList());
+        when(itemRepository.findAllByUserId(userId, page)).thenReturn(Page.empty());
 
         List<ItemDtoWithBookingsAndComments> actualItems = itemService.findAll(userId, from, size);
 
@@ -325,7 +328,8 @@ public class ItemServiceUnitTest {
         String text = "text";
         List<Item> items = List.of(item);
         PageRequest page = PageRequest.of(from / size, size);
-        when(itemRepository.search(text, page)).thenReturn(items);
+        Page<Item> itemsPage = new PageImpl<>(items, page, size);
+        when(itemRepository.search(text, page)).thenReturn(itemsPage);
         when(itemMapper.itemToDto(item)).thenReturn(itemDto);
 
         List<ItemDto> actualItems = itemService.search(userId, text, from, size);
@@ -346,7 +350,7 @@ public class ItemServiceUnitTest {
     void search_whenNotFoundItems_thenEntityNotFoundExceptionThrows() {
         String text = "text";
         PageRequest page = PageRequest.of(from / size, size);
-        when(itemRepository.search(text, page)).thenReturn(Collections.emptyList());
+        when(itemRepository.search(text, page)).thenReturn(Page.empty());
 
         assertThrows(EntityNotFoundException.class,
                 () -> itemService.search(userId, text, from, size));

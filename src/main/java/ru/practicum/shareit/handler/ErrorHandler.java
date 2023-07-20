@@ -24,7 +24,7 @@ public class ErrorHandler {
     public ErrorResponse handleValidationException(final ValidationException e) {
         log.error("400 — Validation Error");
         return new ErrorResponse(
-                String.format(e.getMessage())
+                String.format("Ошибка валидации: " + e.getMessage())
         );
     }
 
@@ -32,21 +32,21 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingRequestHeaderException(MissingRequestHeaderException e) {
         log.error("400 — Missing Request Header");
-        return new ErrorResponse(String.format(Objects.requireNonNull(e.getMessage())));
+        return new ErrorResponse(String.format("Отсутствует заголовок: " + Objects.requireNonNull(e.getMessage())));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handlerMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("400 — Method Argument Not Valid");
-        return new ErrorResponse(String.format(Objects.requireNonNull(e.getMessage())));
+        return new ErrorResponse(String.format("Неверный аргумент метода: " + Objects.requireNonNull(e.getMessage())));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
         log.error("400 — Constraint Violation");
-        return new ErrorResponse(String.format(Objects.requireNonNull(e.getMessage())));
+        return new ErrorResponse(String.format("Нарушение ограничений: " + Objects.requireNonNull(e.getMessage())));
     }
 
     @ExceptionHandler
@@ -64,7 +64,7 @@ public class ErrorHandler {
     public ErrorResponse handleThrowable(final Throwable e) {
         log.error("500 — Произошла непредвиденная ошибка.");
         return new ErrorResponse(
-                String.format(e.getMessage())
+                String.format("Непредвиденная ошибка: " + e.getMessage())
         );
     }
 
@@ -72,9 +72,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflictException(ConflictException e) {
         log.error("409 — Конфликт сущностей.");
-        return new ErrorResponse(
-                String.format(e.getMessage())
-        );
+        return new ErrorResponse(String.format("Конфликт сущностей: " + e.getMessage()));
     }
 
     @ExceptionHandler
@@ -82,7 +80,7 @@ public class ErrorHandler {
     public ErrorResponse handleAccessException(AccessException e) {
         log.error("403 — Доступ запрещен.");
         return new ErrorResponse(
-                String.format(e.getMessage())
+                String.format("Доступ запрещен: " + e.getMessage())
         );
     }
 

@@ -61,7 +61,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingDto> getAllByItemOwner(@RequestHeader(USERID_HEADER) Long userId,
+    public List<BookingDto> findAllByItemOwner(@RequestHeader(USERID_HEADER) Long userId,
                                               @RequestParam(name = "state", defaultValue = "ALL") String state,
                                               @RequestParam(defaultValue = "0") @Min(0) Integer from,
                                               @RequestParam(defaultValue = "10") @Min(1) Integer size) {
