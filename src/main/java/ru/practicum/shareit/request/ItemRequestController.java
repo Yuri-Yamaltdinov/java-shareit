@@ -51,7 +51,7 @@ public class ItemRequestController {
     @ResponseStatus(HttpStatus.OK)
     public List<ItemRequestDto> getAllRequests(@RequestHeader(USERID_HEADER) Long userId,
                                                @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                               @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+                                               @RequestParam(defaultValue = "20") @Min(1) Integer size) {
         log.info("Got request to GET all item requests");
         return itemRequestService.getAllRequests(userId, from, size);
     }

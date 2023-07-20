@@ -109,7 +109,7 @@ public class ItemRequestServiceIntegrationTest {
             itemRequestService.create(userId2, requestDto);
         }
 
-        List<ItemRequestDto> targetRequests = itemRequestService.getAllRequests(userId2, 0, 5);
+        List<ItemRequestDto> targetRequests = itemRequestService.getAllRequests(userId, 0, 5);
 
         assertThat(targetRequests, hasSize(sourceRequests.size()));
         for (ItemRequestDto sourceRequest : sourceRequests) {
@@ -137,12 +137,12 @@ public class ItemRequestServiceIntegrationTest {
         int from = 0;
         int size = 2;
 
-        List<ItemRequestDto> targetRequests = itemRequestService.getAllRequests(userId2, from, size);
+        List<ItemRequestDto> targetRequests = itemRequestService.getAllRequests(userId, from, size);
 
         assertThat(targetRequests, hasSize(size));
 
         from = 2;
-        targetRequests = itemRequestService.getAllRequests(userId, from, size);
+        targetRequests = itemRequestService.getAllRequests(userId2, from, size);
 
         assertThat(targetRequests, hasSize(0));
     }

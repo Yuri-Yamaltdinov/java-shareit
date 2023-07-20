@@ -56,7 +56,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userService.findById(userId);
         Pageable page = PageRequest.of(from > 0 ? from / size : 0, size);
 
-        return itemRequestRepository.findByRequestorIdOrderByCreatedAsc(userId, page)
+        return itemRequestRepository.findAllExceptRequestorIdOrderByCreatedAsc(userId, page)
                 .stream()
                 .map(itemRequestMapper::itemRequestToDto)
                 .collect(Collectors.toList());

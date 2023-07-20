@@ -43,7 +43,6 @@ public class UserServiceUnitTest {
                 .name("Name")
                 .email("email@email.ru").build();
         userDto = UserDto.builder()
-                //.id(1L)
                 .name("Name")
                 .email("email@email.ru").build();
     }

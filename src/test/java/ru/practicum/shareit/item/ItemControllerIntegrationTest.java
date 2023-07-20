@@ -342,7 +342,7 @@ public class ItemControllerIntegrationTest {
         Long itemId = 0L;
         CommentDto commentDto = CommentDto.builder().text("test").build();
         when(itemService.createComment(userId, itemId, commentDto))
-                .thenThrow(ValidationException.class);
+                .thenThrow(new ValidationException("Exception message"));
 
         mockMvc.perform(post("/items/{itemId}/comment", itemId)
                         .header("X-Sharer-User-Id", userId.toString())

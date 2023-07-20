@@ -24,7 +24,7 @@ public class ErrorHandler {
     public ErrorResponse handleValidationException(final ValidationException e) {
         log.error("400 — Validation Error");
         return new ErrorResponse(
-                String.format("Ошибка валидации: " + e.getMessage())
+                String.format(Objects.requireNonNull(e.getMessage()))
         );
     }
 
@@ -52,7 +52,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundEntity(final EntityNotFoundException e) {
-        log.error("404 — Cущность  {} не найдена: EntityNotFoundException", e.getEntityName());
+        log.error("404 — Cущность {} не найдена: EntityNotFoundException", e.getEntityName());
         return new ErrorResponse(
                 String.format("Не найдена сущность класса \"%s\".", e.getEntityName() + "\n" +
                         e.getMessage())
@@ -86,6 +86,10 @@ public class ErrorHandler {
 
     private static class ErrorResponse {
         private final String error;
+
+        public ErrorResponse() {
+            this.error = "Error message is empty";
+        }
 
         public ErrorResponse(String error) {
             this.error = error;

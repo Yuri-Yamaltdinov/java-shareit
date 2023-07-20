@@ -188,7 +188,7 @@ public class BookingControllerIntegrationTest {
     void findById_whenDuplicateBookingStatus_thenReturnStatusBadRequest() {
         Long bookingId = 0L;
         when(bookingService.findById(userId, bookingId))
-                .thenThrow(ValidationException.class);
+                .thenThrow(new ValidationException("exception message"));
 
         mockMvc.perform(get("/bookings/{bookingId}", bookingId)
                         .header("X-Sharer-User-Id", userId.toString()))
@@ -240,7 +240,7 @@ public class BookingControllerIntegrationTest {
         Integer from = 1;
         Integer size = 1;
         when(bookingService.findAllByState(any(), any(), any(), any()))
-                .thenThrow(ValidationException.class);
+                .thenThrow(new ValidationException("exception message"));
 
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", userId.toString())

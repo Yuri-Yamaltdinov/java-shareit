@@ -137,7 +137,7 @@ public class ItemRequestServiceUnitTest {
         int size = 5;
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         List<ItemRequest> requests = List.of(itemRequest);
-        when(itemRequestRepository.findByRequestorIdOrderByCreatedAsc(userId, page)).thenReturn(requests);
+        when(itemRequestRepository.findAllExceptRequestorIdOrderByCreatedAsc(userId, page)).thenReturn(requests);
         when(itemRequestMapper.itemRequestToDto(itemRequest)).thenReturn(itemRequestDto);
 
         List<ItemRequestDto> actualRequests = itemRequestService.getAllRequests(userId, from, size);
