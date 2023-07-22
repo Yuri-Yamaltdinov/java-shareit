@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.util.Pagination;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,7 +43,7 @@ public class BookingRepositoryIntegrationTest {
     void testFindByBookerId() {
         User booker = saveRandomUser();
         Item item = saveRandomItem(saveRandomUser());
-        PageRequest pageRequest = PageRequest.of(1, 1);
+        Pagination pageRequest = new Pagination(1, 1);
         Booking booking1 = bookingRepository.save(Booking.builder()
                 .booker(booker)
                 .item(item)
@@ -69,7 +69,7 @@ public class BookingRepositoryIntegrationTest {
 
     @Test
     void testFindByBookerIdAndEndIsAfterAndStartIsBefore() {
-        PageRequest pageRequest = PageRequest.of(0, 1);
+        Pagination pageRequest = new Pagination(0, 1);
         Long bookerId = saveOneBookingForEachBookingStateSearchDtoWithSameBookerAndItemOwner()
                 .get("BookerId");
         LocalDateTime end = LocalDateTime.now();
@@ -89,7 +89,7 @@ public class BookingRepositoryIntegrationTest {
 
     @Test
     void testFindByBookerIdAndEndIsBefore() {
-        PageRequest pageRequest = PageRequest.of(0, 1);
+        Pagination pageRequest = new Pagination(0, 1);
         Long bookerId = saveOneBookingForEachBookingStateSearchDtoWithSameBookerAndItemOwner()
                 .get("BookerId");
         LocalDateTime end = LocalDateTime.now();
@@ -130,7 +130,7 @@ public class BookingRepositoryIntegrationTest {
 
     @Test
     void testFindByBookerIdAndStartIsAfter() {
-        PageRequest pageRequest = PageRequest.of(0, 1);
+        Pagination pageRequest = new Pagination(0, 1);
         Long bookerId = saveOneBookingForEachBookingStateSearchDtoWithSameBookerAndItemOwner()
                 .get("BookerId");
         LocalDateTime start = LocalDateTime.now();
@@ -145,7 +145,7 @@ public class BookingRepositoryIntegrationTest {
 
     @Test
     void testFindByBookerIdAndState() {
-        PageRequest pageRequest = PageRequest.of(0, 1);
+        Pagination pageRequest = new Pagination(0, 1);
         Long bookerId = saveOneBookingForEachBookingStateSearchDtoWithSameBookerAndItemOwner()
                 .get("BookerId");
 
@@ -164,7 +164,7 @@ public class BookingRepositoryIntegrationTest {
     void testFindByItemOwnerId() {
         User itemOwner = saveRandomUser();
         Item item = saveRandomItem(itemOwner);
-        PageRequest pageRequest = PageRequest.of(1, 1);
+        Pagination pageRequest = new Pagination(1, 1);
         Booking booking1 = bookingRepository.save(Booking.builder()
                 .booker(saveRandomUser())
                 .item(item)
@@ -190,7 +190,7 @@ public class BookingRepositoryIntegrationTest {
 
     @Test
     void testFindByItemOwnerIdAndEndIsAfterAndStartIsBefore() {
-        PageRequest pageRequest = PageRequest.of(0, 1);
+        Pagination pageRequest = new Pagination(0, 1);
         Long ownerId = saveOneBookingForEachBookingStateSearchDtoWithSameBookerAndItemOwner()
                 .get("ItemOwnerId");
         LocalDateTime end = LocalDateTime.now();
@@ -210,7 +210,7 @@ public class BookingRepositoryIntegrationTest {
 
     @Test
     void testFindByItemOwnerIdAndEndIsBefore() {
-        PageRequest pageRequest = PageRequest.of(0, 1);
+        Pagination pageRequest = new Pagination(0, 1);
         Long ownerId = saveOneBookingForEachBookingStateSearchDtoWithSameBookerAndItemOwner()
                 .get("ItemOwnerId");
         LocalDateTime end = LocalDateTime.now();
@@ -228,7 +228,7 @@ public class BookingRepositoryIntegrationTest {
 
     @Test
     void testFindByItemOwnerIdAndStartIsAfter() {
-        PageRequest pageRequest = PageRequest.of(0, 1);
+        Pagination pageRequest = new Pagination(0, 1);
         Long ownerId = saveOneBookingForEachBookingStateSearchDtoWithSameBookerAndItemOwner()
                 .get("ItemOwnerId");
         LocalDateTime start = LocalDateTime.now();
@@ -244,7 +244,7 @@ public class BookingRepositoryIntegrationTest {
 
     @Test
     void testFindByItemOwnerIdAndState() {
-        PageRequest pageRequest = PageRequest.of(0, 1);
+        Pagination pageRequest = new Pagination(0, 1);
         Long ownerId = saveOneBookingForEachBookingStateSearchDtoWithSameBookerAndItemOwner()
                 .get("ItemOwnerId");
 

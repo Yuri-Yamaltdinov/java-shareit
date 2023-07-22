@@ -4,8 +4,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 public class Pagination extends PageRequest {
+    private Integer from;
+    private Integer size;
 
-    protected Pagination(int page, int size) {
-        super(page, size, Sort.unsorted());
+    public Pagination(int from, int size) {
+        super(from > 0 ? from / size : 0, size, Sort.unsorted());
     }
 }

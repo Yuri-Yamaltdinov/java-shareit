@@ -7,7 +7,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -30,6 +29,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.util.Pagination;
 
 import java.util.Collections;
 import java.util.List;
@@ -261,7 +261,7 @@ public class ItemServiceUnitTest {
 
     @Test
     void findAll_whenInvoke_thenReturnListItemBooked() {
-        PageRequest page = PageRequest.of(from, size);
+        Pagination page = new Pagination(from, size);
         List<Item> items = List.of(item);
         Page<Item> itemsPage = new PageImpl<>(items, page, size);
         ItemDtoWithBookingsAndComments itemDtoWithBookingsAndComments = ItemDtoWithBookingsAndComments.builder().build();
@@ -292,7 +292,7 @@ public class ItemServiceUnitTest {
 
     @Test
     void findAll_whenItemNotFound_thenReturnEmptyListItemBooked() {
-        PageRequest page = PageRequest.of(from / size, size);
+        Pagination page = new Pagination(from, size);
         when(itemRepository.findAllByUserId(userId, page)).thenReturn(Page.empty());
 
         List<ItemDtoWithBookingsAndComments> actualItems = itemService.findAll(userId, from, size);
@@ -327,7 +327,7 @@ public class ItemServiceUnitTest {
     void search_whenInvoke_thenReturnCollectionItemDto() {
         String text = "text";
         List<Item> items = List.of(item);
-        PageRequest page = PageRequest.of(from / size, size);
+        Pagination page = new Pagination(from, size);
         Page<Item> itemsPage = new PageImpl<>(items, page, size);
         when(itemRepository.search(text, page)).thenReturn(itemsPage);
         when(itemMapper.itemToDto(item)).thenReturn(itemDto);
@@ -349,7 +349,7 @@ public class ItemServiceUnitTest {
     @Test
     void search_whenNotFoundItems_thenEntityNotFoundExceptionThrows() {
         String text = "text";
-        PageRequest page = PageRequest.of(from / size, size);
+        Pagination page = new Pagination(from, size);
         when(itemRepository.search(text, page)).thenReturn(Page.empty());
 
         assertThrows(EntityNotFoundException.class,

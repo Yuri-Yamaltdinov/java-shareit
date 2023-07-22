@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
@@ -26,6 +25,7 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.util.Pagination;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -124,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDtoWithBookingsAndComments> findAll(Long userId, Integer from, Integer size) {
         userService.findById(userId);
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Pagination page = new Pagination(from, size);
 
         List<ItemDtoWithBookingsAndComments> items = itemRepository.findAllByUserId(userId, page)
                 .stream()
@@ -175,7 +175,7 @@ public class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         }
 
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Pagination page = new Pagination(from, size);
         Page<Item> items = itemRepository.search(text, page);
 
         if (items.isEmpty()) {

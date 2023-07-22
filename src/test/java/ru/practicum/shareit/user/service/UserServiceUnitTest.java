@@ -6,12 +6,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.util.Pagination;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +51,7 @@ public class UserServiceUnitTest {
     void findAll_whenInvoked_thenReturnUserDtoCollections() {
         Integer from = 1;
         Integer size = 1;
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Pagination page = new Pagination(from, size);
         List<User> usersFromRepository = List.of(user);
         List<UserDto> expectedUsersDto = List.of(userDto);
         when(userRepository.findAll(page)).thenReturn(new PageImpl<>(usersFromRepository));

@@ -4,12 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.util.Pagination;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,7 +35,7 @@ public class ItemRepositoryIntegrationTest {
     @Test
     void pageableFindByOwnerId_whenInvoked_thenItemsForRequestedOwnerAndPageReturned() {
         User owner = saveRandomUser();
-        PageRequest pageRequest = PageRequest.of(1, 1);
+        Pagination pageRequest = new Pagination(1, 1);
         itemRepository.save(Item.builder()
                 .name("item_1")
                 .description("desc")
@@ -59,7 +59,7 @@ public class ItemRepositoryIntegrationTest {
     @Test
     void searchByText_whenInvoked_thenItemsFoundByTextInNameOrDescriptionCaseInsensitive() {
         User owner = saveRandomUser();
-        PageRequest pageRequest = PageRequest.of(0, 3);
+        Pagination pageRequest = new Pagination(0, 3);
         String text = "ITEM_1";
         Item item1 = itemRepository.save(Item.builder()
                 .name("item_1")
@@ -94,7 +94,7 @@ public class ItemRepositoryIntegrationTest {
     void findAll_whenInvoked_thenItemsWithRequestFound() {
         User owner = saveRandomUser();
         ItemRequest itemRequest = saveRandomRequest();
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        Pagination pageRequest = new Pagination(0, 10);
         Item item1 = itemRepository.save(Item.builder()
                 .name("item1")
                 .description("desc")
@@ -117,8 +117,8 @@ public class ItemRepositoryIntegrationTest {
                 .build());
 
         List<Item> foundItems = itemRepository.findAllByUserId(owner.getId(), pageRequest)
-                                                    .stream()
-                                                    .collect(Collectors.toList());
+                .stream()
+                .collect(Collectors.toList());
 
         assertThat(foundItems, hasSize(3));
         assertThat(foundItems.get(0), equalTo(item1));

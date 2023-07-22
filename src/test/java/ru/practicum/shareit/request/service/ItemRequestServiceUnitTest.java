@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
@@ -15,6 +14,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.util.Pagination;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -135,7 +135,7 @@ public class ItemRequestServiceUnitTest {
     void getAllRequests_whenInvoke_thenReturnCollectionItemRequestDto() {
         int from = 1;
         int size = 5;
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Pagination page = new Pagination(from, size);
         List<ItemRequest> requests = List.of(itemRequest);
         when(itemRequestRepository.findAllExceptRequestorIdOrderByCreatedAsc(userId, page)).thenReturn(requests);
         when(itemRequestMapper.itemRequestToDto(itemRequest)).thenReturn(itemRequestDto);

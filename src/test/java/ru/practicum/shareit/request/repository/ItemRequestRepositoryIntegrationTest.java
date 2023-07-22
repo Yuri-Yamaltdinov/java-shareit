@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.util.Pagination;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,7 +53,7 @@ public class ItemRequestRepositoryIntegrationTest {
         User requestor = saveRandomUser();
         int page = 2;
         int size = 1;
-        PageRequest pageRequest = PageRequest.of(page, size);
+        Pagination pageRequest = new Pagination(page * size, size);
         ItemRequest request1 = itemRequestRepository.save(ItemRequest.builder()
                 .created(LocalDateTime.now().minusHours(3))
                 .description("request1")

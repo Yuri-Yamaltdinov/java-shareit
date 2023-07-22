@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -18,6 +17,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.util.Pagination;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -99,7 +99,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException(String.format("Unknown state: %s", state));
         }
 
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Pagination page = new Pagination(from, size);
 
         switch (bookingStateDto) {
             case CURRENT:
@@ -142,7 +142,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException(String.format("Unknown state: %s", state));
         }
 
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Pagination page = new Pagination(from, size);
 
         if (bookingRepository.findByItemOwnerIdOrderByStartDesc(userId, page).isEmpty()) {
             throw new ValidationException("User doesn't have booked items.");
