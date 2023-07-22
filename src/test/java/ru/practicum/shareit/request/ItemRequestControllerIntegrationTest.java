@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.item.ItemController.USERID_HEADER;
 
 @WebMvcTest(controllers = ItemRequestController.class)
 public class ItemRequestControllerIntegrationTest {
@@ -43,7 +44,7 @@ public class ItemRequestControllerIntegrationTest {
         when(itemRequestService.create(userId, itemRequestDto)).thenReturn(itemRequestDto);
 
         String result = mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemRequestDto)))
                 .andExpect(status().isCreated())
@@ -60,7 +61,7 @@ public class ItemRequestControllerIntegrationTest {
         ItemRequestDto itemRequestDto = ItemRequestDto.builder().build();
 
         mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemRequestDto)))
                 .andExpect(status().isBadRequest());
@@ -77,7 +78,7 @@ public class ItemRequestControllerIntegrationTest {
                 .thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemRequestDto)))
                 .andExpect(status().isNotFound());
@@ -91,7 +92,7 @@ public class ItemRequestControllerIntegrationTest {
         when(itemRequestService.getAllRequestByUser(userId)).thenReturn(itemRequestDtoList);
 
         String result = mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -109,7 +110,7 @@ public class ItemRequestControllerIntegrationTest {
         when(itemRequestService.getRequestById(userId, requestId)).thenReturn(itemRequestDto);
 
         String result = mockMvc.perform(get("/requests/{requestId}", requestId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -126,7 +127,7 @@ public class ItemRequestControllerIntegrationTest {
                 .thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(get("/requests/{requestId}", requestId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isNotFound());
     }
 
@@ -138,7 +139,7 @@ public class ItemRequestControllerIntegrationTest {
         when(itemRequestService.getAllRequests(userId, 1, 1)).thenReturn(itemRequestDtoList);
 
         String result = mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("from", "1")
                         .param("size", "1"))
                 .andExpect(status().isOk())
@@ -153,7 +154,7 @@ public class ItemRequestControllerIntegrationTest {
     @Test
     void getAllRequests_withNotValidParams_thenReturnBadRequest() {
         mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("from", "-1")
                         .param("size", "-1"))
                 .andExpect(status().isBadRequest());

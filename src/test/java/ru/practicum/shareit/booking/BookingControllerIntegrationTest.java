@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.item.ItemController.USERID_HEADER;
 
 @WebMvcTest(BookingController.class)
 public class BookingControllerIntegrationTest {
@@ -33,26 +35,33 @@ public class BookingControllerIntegrationTest {
     @MockBean
     private BookingService bookingService;
 
+    private BookingDtoInitial bookingRequestDto;
+    private BookingDto bookingResponseDto;
+
     @BeforeAll
     static void beforeAll() {
         userId = 0L;
     }
 
-    @SneakyThrows
-    @Test
-    void create_whenInvoke_thenReturnStatusOk() {
-        BookingDtoInitial bookingRequestDto = BookingDtoInitial.builder()
+    @BeforeEach
+    void beforeEach() {
+        bookingRequestDto = BookingDtoInitial.builder()
                 .itemId(1L)
                 .start(LocalDateTime.now().plusHours(1L))
                 .end(LocalDateTime.now().plusHours(2L)).build();
-        BookingDto bookingResponseDto = BookingDto.builder()
+        bookingResponseDto = BookingDto.builder()
                 .id(1L)
                 .start(LocalDateTime.now().plusHours(1L))
                 .end(LocalDateTime.now().plusHours(2L)).build();
+    }
+
+    @SneakyThrows
+    @Test
+    void create_whenInvoke_thenReturnStatusOk() {
         when(bookingService.create(userId, bookingRequestDto)).thenReturn(bookingResponseDto);
 
         String result = mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isCreated())
@@ -66,14 +75,10 @@ public class BookingControllerIntegrationTest {
     @SneakyThrows
     @Test
     void create_whenUserNotFound_thenReturnStatusNotFound() {
-        BookingDtoInitial bookingRequestDto = BookingDtoInitial.builder()
-                .itemId(1L)
-                .start(LocalDateTime.now().plusHours(1L))
-                .end(LocalDateTime.now().plusHours(2L)).build();
         when(bookingService.create(userId, bookingRequestDto)).thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isNotFound());
@@ -82,13 +87,10 @@ public class BookingControllerIntegrationTest {
     @SneakyThrows
     @Test
     void create_whenNotValidBody_thenReturnStatusBadRequest() {
-        BookingDtoInitial bookingRequestDto = BookingDtoInitial.builder()
-                .itemId(1L)
-                .start(LocalDateTime.now().minusHours(1L))
-                .end(LocalDateTime.now().plusHours(2L)).build();
+        bookingRequestDto.setStart(LocalDateTime.now().minusHours(1L));
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isBadRequest());
@@ -101,14 +103,10 @@ public class BookingControllerIntegrationTest {
     void setStatus_whenInvoke_thenReturnStatusOkAndBookingResponseDtoInBody() {
         Long bookingId = 0L;
         Boolean approved = true;
-        BookingDto bookingResponseDto = BookingDto.builder()
-                .id(1L)
-                .start(LocalDateTime.now().plusHours(1L))
-                .end(LocalDateTime.now().plusHours(2L)).build();
         when(bookingService.setStatus(userId, bookingId, approved)).thenReturn(bookingResponseDto);
 
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("approved", "true"))
                 .andExpect(status().isOk());
     }
@@ -122,7 +120,7 @@ public class BookingControllerIntegrationTest {
                 .thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("approved", "true"))
                 .andExpect(status().isNotFound());
     }
@@ -136,7 +134,7 @@ public class BookingControllerIntegrationTest {
                 .thenThrow(ValidationException.class);
 
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isInternalServerError());
     }
 
@@ -161,7 +159,7 @@ public class BookingControllerIntegrationTest {
         when(bookingService.findById(userId, bookingId)).thenReturn(responseDto);
 
         String result = mockMvc.perform(get("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -179,7 +177,7 @@ public class BookingControllerIntegrationTest {
                 .thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(get("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isNotFound());
     }
 
@@ -191,7 +189,7 @@ public class BookingControllerIntegrationTest {
                 .thenThrow(new ValidationException("exception message"));
 
         mockMvc.perform(get("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isBadRequest());
     }
 
@@ -206,7 +204,7 @@ public class BookingControllerIntegrationTest {
                 .thenReturn(responseDtoList);
 
         String result = mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", from.toString())
                         .param("size", size.toString()))
@@ -226,7 +224,7 @@ public class BookingControllerIntegrationTest {
         Integer size = -1;
 
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", from.toString())
                         .param("size", size.toString()))
@@ -243,7 +241,7 @@ public class BookingControllerIntegrationTest {
                 .thenThrow(new ValidationException("exception message"));
 
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", from.toString())
                         .param("size", size.toString()))
@@ -261,7 +259,7 @@ public class BookingControllerIntegrationTest {
                 .thenReturn(responseDtoList);
 
         String result = mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", from.toString())
                         .param("size", size.toString()))
@@ -280,7 +278,7 @@ public class BookingControllerIntegrationTest {
         Integer from = -1;
         Integer size = -1;
         mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", from.toString())
                         .param("size", size.toString()))

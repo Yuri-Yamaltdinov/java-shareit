@@ -32,15 +32,14 @@ public class UserControllerIntegrationTest {
     @BeforeEach
     void beforeEach() {
         userId = 0L;
-        userDto = UserDto.builder().build();
+        userDto = UserDto.builder()
+                .name("Name")
+                .email("user@email.ru").build();
     }
 
     @SneakyThrows
     @Test
     void create_whenInvoke_thenInvokeUserService() {
-        userDto = UserDto.builder()
-                .name("Name")
-                .email("user@email.ru").build();
         when(userService.create(userDto)).thenReturn(userDto);
 
         String result = mockMvc.perform(post("/users")
@@ -58,6 +57,8 @@ public class UserControllerIntegrationTest {
     @SneakyThrows
     @Test
     void create_withNotValidParams_thenReturnBadRequest() {
+        userDto.setName(null);
+        userDto.setEmail(null);
         mockMvc.perform(post("/users")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(userDto)))
@@ -69,8 +70,6 @@ public class UserControllerIntegrationTest {
     @SneakyThrows
     @Test
     void create_whenDuplicateUser_thenConflictStatus() {
-        userDto.setName("Name");
-        userDto.setEmail("user@email.ru");
         when(userService.create(userDto)).thenThrow(ConflictException.class);
 
         mockMvc.perform(post("/users")
@@ -142,9 +141,6 @@ public class UserControllerIntegrationTest {
     @SneakyThrows
     @Test
     void update_whenInvoke_thenStatusOK() {
-        userDto = UserDto.builder()
-                .name("Name")
-                .email("user@email.ru").build();
         when(userService.update(userId, userDto)).thenReturn(userDto);
 
         String result = mockMvc.perform(patch("/users/{userId}", userId)

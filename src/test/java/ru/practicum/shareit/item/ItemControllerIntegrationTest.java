@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.item.ItemController.USERID_HEADER;
 
 @WebMvcTest(controllers = ItemController.class)
 public class ItemControllerIntegrationTest {
@@ -34,22 +36,32 @@ public class ItemControllerIntegrationTest {
     @MockBean
     private ItemService itemService;
 
+    private ItemDto itemDto;
+    private CommentDto commentDto;
+    private Long itemId;
+
     @BeforeAll
     static void beforeAll() {
         userId = 0L;
     }
 
+    @BeforeEach
+    void beforeEach() {
+        itemDto = ItemDto.builder()
+                .description("desc")
+                .available(true).build();
+        itemId = 0L;
+        commentDto = CommentDto.builder().text("test").build();
+    }
+
     @SneakyThrows
     @Test
     void create_whenInvoke_thenStatusCreateItemDtoInBody() {
-        ItemDto itemDto = ItemDto.builder()
-                .name("Name")
-                .description("desc")
-                .available(true).build();
+        itemDto.setName("Name");
         when(itemService.create(userId, itemDto)).thenReturn(itemDto);
 
         String result = mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isCreated())
@@ -63,12 +75,8 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void create_whenBodyNotValid_thenStatusBadRequest() {
-        ItemDto itemDto = ItemDto.builder()
-                .description("desc")
-                .available(true).build();
-
         mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isBadRequest());
@@ -79,10 +87,6 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void create_whenNotHeadUserId_thenStatusBadRequest() {
-        ItemDto itemDto = ItemDto.builder()
-                .description("desc")
-                .available(true).build();
-
         mockMvc.perform(post("/items")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDto)))
@@ -95,12 +99,8 @@ public class ItemControllerIntegrationTest {
     @Test
     void create_whenUserNotFound_thenthenStatusNotFound() {
         Long wrongUserId = 100L;
-        ItemDto itemDto = ItemDto.builder()
-                .description("desc")
-                .available(true).build();
-
         ResultActions resultActions = mockMvc.perform(post("/items")
-                .header("X-Sharer-User-Id", wrongUserId.toString())
+                .header(USERID_HEADER, wrongUserId.toString())
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(itemDto)));
 
@@ -113,14 +113,10 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void update_whenInvoke_thenStatusOkItemDtoInBody() {
-        Long itemId = 0L;
-        ItemDto itemDto = ItemDto.builder()
-                .description("desc")
-                .available(true).build();
         when(itemService.update(userId, itemId, itemDto)).thenReturn(itemDto);
 
         String result = mockMvc.perform(patch("/items/{itemId}", itemId.toString())
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isOk())
@@ -134,15 +130,11 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void update_whenItemNotFound_thenStatusNotFound() {
-        Long itemId = 0L;
-        ItemDto itemDto = ItemDto.builder()
-                .description("desc")
-                .available(true).build();
         when(itemService.update(userId, itemId, itemDto))
                 .thenThrow(AccessException.class);
 
         mockMvc.perform(patch("/items/{itemId}", itemId.toString())
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isForbidden());
@@ -151,16 +143,12 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void update_whenUserNotOwner_thenStatusNotFound() {
-        Long itemId = 0L;
         userId = 1L;
-        ItemDto itemDto = ItemDto.builder()
-                .description("desc")
-                .available(true).build();
         when(itemService.update(userId, itemId, itemDto))
                 .thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(patch("/items/{itemId}", itemId.toString())
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isNotFound());
@@ -169,15 +157,11 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void update_whenUserNotFound_thenStatusNotFound() {
-        Long itemId = 0L;
         userId = 2L;
-        ItemDto itemDto = ItemDto.builder()
-                .description("desc")
-                .available(true).build();
         when(itemService.update(anyLong(), anyLong(), any()))
                 .thenThrow(EntityNotFoundException.class);
         mockMvc.perform(patch("/items/{itemId}", itemId.toString())
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isNotFound());
@@ -186,14 +170,13 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void getByItemId_whenInvoke_thenStatusOkItemBookedInBody() {
-        Long itemId = 0L;
         ItemDtoWithBookingsAndComments itemBooked = ItemDtoWithBookingsAndComments.builder()
                 .description("desc")
                 .available(true).build();
         when(itemService.findById(userId, itemId)).thenReturn(itemBooked);
 
         String result = mockMvc.perform(get("/items/{itemId}", itemId.toString())
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -205,12 +188,11 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void getByItemId_whenItemNotFound_thenStatusNotFound() {
-        Long itemId = 0L;
         when(itemService.findById(userId, itemId))
                 .thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(get("/items/{itemId}", itemId.toString())
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isNotFound());
     }
 
@@ -225,7 +207,7 @@ public class ItemControllerIntegrationTest {
         when(itemService.findAll(userId, from, size)).thenReturn(itemBookedList);
 
         String result = mockMvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("from", from.toString())
                         .param("size", size.toString()))
                 .andExpect(status().isOk())
@@ -243,7 +225,7 @@ public class ItemControllerIntegrationTest {
         Integer size = -1;
 
         mockMvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("from", from.toString())
                         .param("size", size.toString()))
                 .andExpect(status().isBadRequest());
@@ -254,10 +236,8 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void delete_whenInvoke_thenStatusNoContent() {
-        Long itemId = 0L;
-
         mockMvc.perform(delete("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isNoContent());
 
         verify(itemService, times(1)).delete(userId, itemId);
@@ -273,7 +253,7 @@ public class ItemControllerIntegrationTest {
         when(itemService.search(userId, text, from, size)).thenReturn(itemDtoList);
 
         String result = mockMvc.perform(get("/items/search")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("text", text)
                         .param("from", from.toString())
                         .param("size", size.toString()))
@@ -293,7 +273,7 @@ public class ItemControllerIntegrationTest {
         Integer size = -1;
 
         mockMvc.perform(get("/items/search")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("text", text)
                         .param("from", from.toString())
                         .param("size", size.toString()))
@@ -305,12 +285,10 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void createComment_whenInvoke_thenStatusOk() {
-        Long itemId = 0L;
-        CommentDto commentDto = CommentDto.builder().text("test").build();
         when(itemService.createComment(userId, itemId, commentDto)).thenReturn(commentDto);
 
         String result = mockMvc.perform(post("/items/{itemId}/comment", itemId)
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(commentDto)))
                 .andExpect(status().isOk())
@@ -324,13 +302,11 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void createComment_whenItemNotFound_thenStatusNotFound() {
-        Long itemId = 0L;
-        CommentDto commentDto = CommentDto.builder().text("test").build();
         when(itemService.createComment(userId, itemId, commentDto))
                 .thenThrow(EntityNotFoundException.class);
 
         mockMvc.perform(post("/items/{itemId}/comment", itemId)
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(commentDto)))
                 .andExpect(status().isNotFound());
@@ -339,13 +315,11 @@ public class ItemControllerIntegrationTest {
     @SneakyThrows
     @Test
     void createComment_whenBookingNotFound_thenStatusBadRequest() {
-        Long itemId = 0L;
-        CommentDto commentDto = CommentDto.builder().text("test").build();
         when(itemService.createComment(userId, itemId, commentDto))
                 .thenThrow(new ValidationException("Exception message"));
 
         mockMvc.perform(post("/items/{itemId}/comment", itemId)
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(commentDto)))
                 .andExpect(status().isBadRequest());

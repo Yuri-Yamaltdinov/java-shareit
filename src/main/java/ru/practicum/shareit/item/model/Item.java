@@ -6,10 +6,9 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
-@ToString
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -27,6 +26,7 @@ public class Item {
     @NotBlank
     private String description;
 
+    @NotNull
     private Boolean available;
 
     @ManyToOne(fetch = FetchType.LAZY)
