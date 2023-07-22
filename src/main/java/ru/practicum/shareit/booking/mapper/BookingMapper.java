@@ -1,18 +1,27 @@
 package ru.practicum.shareit.booking.mapper;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoInitial;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-@Component
+@Mapper(componentModel = "spring")
+public interface BookingMapper {
+    @Mapping(target = "id", source = "bookingDtoInitial.id")
+    Booking bookingFromDtoInitial(BookingDtoInitial bookingDtoInitial,
+                                  User booker, Item item);
+
+    BookingDto bookingToDto(Booking booking);
+
+    @Mapping(target = "bookerId", source = "booking.booker.id")
+    BookingInfoDto bookingToInfoDto(Booking booking);
+
+}
+/*@Component
 @RequiredArgsConstructor
 public class BookingMapper {
     private final ItemMapper itemMapper;
@@ -48,4 +57,4 @@ public class BookingMapper {
                 .bookerId(booking.getBooker().getId())
                 .build();
     }
-}
+}*/
