@@ -34,6 +34,8 @@ public class ItemRequestServiceIntegrationTest {
     private final UserService userService;
     private Long userId;
     private ItemRequestDto itemRequestDto;
+    private List<ItemRequestDto> sourceRequests;
+    private UserDto userDtoNew;
 
     @BeforeEach
     void beforeEach() {
@@ -43,6 +45,13 @@ public class ItemRequestServiceIntegrationTest {
         userId = userService.create(userDto).getId();
 
         itemRequestDto = ItemRequestDto.builder().description("description").build();
+        sourceRequests = new ArrayList<>(List.of(
+                ItemRequestDto.builder().description("desc1").build(),
+                ItemRequestDto.builder().description("desc2").build(),
+                ItemRequestDto.builder().description("desc3").build()));
+        userDtoNew = UserDto.builder()
+                .name("NewUser")
+                .email("newuser@email.ru").build();
     }
 
     @SneakyThrows
@@ -60,13 +69,6 @@ public class ItemRequestServiceIntegrationTest {
 
     @Test
     void getAllRequestByUser() {
-        List<ItemRequestDto> sourceRequests = new ArrayList<>(List.of(
-                ItemRequestDto.builder().description("desc1").build(),
-                ItemRequestDto.builder().description("desc2").build(),
-                ItemRequestDto.builder().description("desc3").build()));
-        UserDto userDtoNew = UserDto.builder()
-                .name("UserNew")
-                .email("userNew@email.ru").build();
         userId = userService.create(userDtoNew).getId();
         for (ItemRequestDto requestDto : sourceRequests) {
             itemRequestService.create(userId, requestDto);
@@ -97,13 +99,6 @@ public class ItemRequestServiceIntegrationTest {
 
     @Test
     void getAllRequests() {
-        List<ItemRequestDto> sourceRequests = new ArrayList<>(List.of(
-                ItemRequestDto.builder().description("desc1").build(),
-                ItemRequestDto.builder().description("desc2").build(),
-                ItemRequestDto.builder().description("desc3").build()));
-        UserDto userDtoNew = UserDto.builder()
-                .name("NewUser")
-                .email("newuser@email.ru").build();
         Long userId2 = userService.create(userDtoNew).getId();
         for (ItemRequestDto requestDto : sourceRequests) {
             itemRequestService.create(userId2, requestDto);
@@ -122,14 +117,7 @@ public class ItemRequestServiceIntegrationTest {
     }
 
     @Test
-    void getAllRequests_withPaging() {
-        List<ItemRequestDto> sourceRequests = new ArrayList<>(List.of(
-                ItemRequestDto.builder().description("desc1").build(),
-                ItemRequestDto.builder().description("desc2").build(),
-                ItemRequestDto.builder().description("desc3").build()));
-        UserDto userDtoNew = UserDto.builder()
-                .name("NewUser")
-                .email("newuser@email.ru").build();
+    void getAllRequestsWithPaging() {
         Long userId2 = userService.create(userDtoNew).getId();
         for (ItemRequestDto requestDto : sourceRequests) {
             itemRequestService.create(userId2, requestDto);

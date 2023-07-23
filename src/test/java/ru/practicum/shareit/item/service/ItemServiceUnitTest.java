@@ -96,7 +96,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void create_withUserAndRequestExist_thenReturnItemDto() {
+    void createWithUserAndRequestExistThenReturnItemDto() {
         when(userService.findById(userId)).thenReturn(userDto);
         when(userMapper.userFromDto(userDto)).thenReturn(user);
 
@@ -125,7 +125,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void create_withUserNotExist_thenEntityNotFoundExceptionThrow() {
+    void createWithUserNotExistThenEntityNotFoundExceptionThrow() {
         doThrow(EntityNotFoundException.class).when(userService).findById(userId);
 
         assertThrows(EntityNotFoundException.class,
@@ -134,7 +134,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void create_withUserExistRequestNotExist_thenEntityNotFoundExceptionThrow() {
+    void createWithUserExistRequestNotExistThenEntityNotFoundExceptionThrow() {
         when(itemRequestRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
@@ -143,7 +143,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void update_whenItemExistAndUserIsOwner_thenUpdateAndReturnItemDto() {
+    void updateWhenItemExistAndUserIsOwnerThenUpdateAndReturnItemDto() {
         ItemDto itemDtoUpdated = ItemDto.builder().name("Updated item").build();
         Item itemOld = Item.builder()
                 .id(0L)
@@ -162,7 +162,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void update_whenItemNotExist_thenEntityNotFoundExceptionThrow() {
+    void updateWhenItemNotExistThenEntityNotFoundExceptionThrow() {
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
@@ -172,7 +172,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void update_whenUserNotOwner_thenDataAccessExceptionThrow() {
+    void updateWhenUserNotOwnerThenDataAccessExceptionThrow() {
         Item itemOld = Item.builder()
                 .owner(User.builder().id(1L).build())
                 .build();
@@ -186,7 +186,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void findById_whenInvoke_thenReturnItemDtoWithBookingsAndComments() {
+    void findByIdWhenInvokeThenReturnItemDtoWithBookingsAndComments() {
         item.setOwner(user);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(itemMapper.itemToItemDtoWithBookingAndComments(item)).thenReturn(itemDtoWithBookingsAndComments);
@@ -208,7 +208,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void findById_whenItemNotFound_thenEntityNotFoundExceptionThrow() {
+    void findByIdWhenItemNotFoundThenEntityNotFoundExceptionThrow() {
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
@@ -216,7 +216,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void findById_whenUserNotOwner_thenReturnItemBookedWithNullBookings() {
+    void findByIdWhenUserNotOwnerThenReturnItemBookedWithNullBookings() {
         user.setId(1L);
         item.setOwner(user);
         ItemDtoWithBookingsAndComments itemDtoWithBookingsAndComments = ItemDtoWithBookingsAndComments.builder().build();
@@ -236,7 +236,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void getByItemId_whenCommentsNotFound_thenReturnItemBookedWithEmptyListComments() {
+    void getByItemIdWhenCommentsNotFoundThenReturnItemBookedWithEmptyListComments() {
         item.setOwner(user);
         ItemDtoWithBookingsAndComments itemDtoWithBookingsAndComments = ItemDtoWithBookingsAndComments.builder().build();
         BookingInfoDto booking = BookingInfoDto.builder().id(1L).build();
@@ -260,7 +260,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void findAll_whenInvoke_thenReturnListItemBooked() {
+    void findAllWhenInvokeThenReturnListItemBooked() {
         Pagination page = new Pagination(from, size);
         List<Item> items = List.of(item);
         Page<Item> itemsPage = new PageImpl<>(items, page, size);
@@ -291,7 +291,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void findAll_whenItemNotFound_thenReturnEmptyListItemBooked() {
+    void findAllWhenItemNotFoundThenReturnEmptyListItemBooked() {
         Pagination page = new Pagination(from, size);
         when(itemRepository.findAllByUserId(userId, page)).thenReturn(Page.empty());
 
@@ -302,7 +302,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void delete_withItemExistAndUserIsOwner_thenInvokeItemRepositoryDeleteMethod() {
+    void deleteWithItemExistAndUserIsOwnerThenInvokeItemRepositoryDeleteMethod() {
         item.setOwner(user);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
@@ -312,7 +312,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void delete_withItemExistAndUserNotOwner_thenDataAccessExceptionThrow() {
+    void deleteWithItemExistAndUserNotOwnerThenDataAccessExceptionThrow() {
         user.setId(1L);
         item.setOwner(user);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
@@ -324,7 +324,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void search_whenInvoke_thenReturnCollectionItemDto() {
+    void searchWhenInvokeThenReturnCollectionItemDto() {
         String text = "text";
         List<Item> items = List.of(item);
         Pagination page = new Pagination(from, size);
@@ -339,7 +339,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void search_withEmptyText_thenReturnCollectionItemDto() {
+    void searchWithEmptyTextThenReturnCollectionItemDto() {
         String text = "";
         List<ItemDto> actualItems = itemService.search(userId, text, from, size);
 
@@ -347,7 +347,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void search_whenNotFoundItems_thenEntityNotFoundExceptionThrows() {
+    void searchWhenNotFoundItemsThenEntityNotFoundExceptionThrows() {
         String text = "text";
         Pagination page = new Pagination(from, size);
         when(itemRepository.search(text, page)).thenReturn(Page.empty());
@@ -357,7 +357,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void createComment_whenInvoke_thenReturnCommentDto() {
+    void createCommentWhenInvokeThenReturnCommentDto() {
         CommentDto commentDto = CommentDto.builder().text("CommentDto").build();
         Comment comment = Comment.builder().id(0L).build();
         Comment savedComment = Comment.builder().build();
@@ -386,7 +386,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void createComment_whenUserNotExist_thenEntityNotFoundExceptionThrow() {
+    void createCommentWhenUserNotExistThenEntityNotFoundExceptionThrow() {
         CommentDto commentDto = CommentDto.builder().text("Comment").build();
         when(userService.findById(userId)).thenThrow(EntityNotFoundException.class);
 
@@ -397,7 +397,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void createComment_whenItemNotExist_thenEntityNotFoundExceptionThrow() {
+    void createCommentWhenItemNotExistThenEntityNotFoundExceptionThrow() {
         CommentDto commentDto = CommentDto.builder().text("Comment").build();
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
@@ -408,7 +408,7 @@ public class ItemServiceUnitTest {
     }
 
     @Test
-    void createComment_whenUserNotBookingItem_thenValidationException() {
+    void createCommentWhenUserNotBookingItemThenValidationException() {
         CommentDto commentDto = CommentDto.builder().text("Comment").build();
         UserDto userDto = UserDto.builder().build();
         User user = User.builder().build();

@@ -93,7 +93,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    void create_whenDuplicateUser() {
+    void createWhenDuplicateUser() {
         UserDto userDtoDuplicate = UserDto.builder()
                 .name("Duplicate")
                 .email("user@email.ru").build();

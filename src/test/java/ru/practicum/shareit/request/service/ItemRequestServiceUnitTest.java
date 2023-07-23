@@ -45,26 +45,27 @@ public class ItemRequestServiceUnitTest {
     private ArgumentCaptor<ItemRequest> argumentCaptorItemRequest;
 
     private Long userId;
+    private Long requestId;
     private ItemRequestDto itemRequestDto;
     private ItemRequest itemRequest;
-
-    public ItemRequestServiceUnitTest() {
-    }
+    private UserDto userDto;
+    private User user;
 
     @BeforeEach
     void beforeEach() {
         userId = 0L;
+        requestId = 0L;
         itemRequestDto = ItemRequestDto.builder()
                 .id(1L)
                 .description("description")
                 .build();
         itemRequest = ItemRequest.builder().build();
+        userDto = UserDto.builder().build();
+        user = User.builder().build();
     }
 
     @Test
-    void create_whenItemRequestAndUserExist_thenReturnItemRequestDto() {
-        UserDto userDto = UserDto.builder().build();
-        User user = User.builder().build();
+    void createWhenItemRequestAndUserExistThenReturnItemRequestDto() {
         ItemRequest itemRequest = ItemRequest.builder()
                 .created(LocalDateTime.ofInstant(Instant.now(), ZoneId.of("Europe/Moscow")))
                 .build();
@@ -93,7 +94,7 @@ public class ItemRequestServiceUnitTest {
     }
 
     @Test
-    void create_whenCreateItemRequestAndUserNotExist_thenEntityNotFoundExceptionThrow() {
+    void createWhenCreateItemRequestAndUserNotExistThenEntityNotFoundExceptionThrow() {
         when(userService.findById(userId)).thenThrow(EntityNotFoundException.class);
 
         assertThrows(EntityNotFoundException.class, () -> itemRequestService.create(userId, itemRequestDto));
@@ -101,7 +102,7 @@ public class ItemRequestServiceUnitTest {
     }
 
     @Test
-    void findAllRequestByUser_whenInvoke_thenReturnListItemRequestDto() {
+    void findAllRequestByUserWhenInvokeThenReturnListItemRequestDto() {
         List<ItemRequest> requestsList = List.of(itemRequest);
         when(itemRequestRepository.findByRequestorIdOrderByCreatedAsc(userId)).thenReturn(requestsList);
         when(itemRequestMapper.itemRequestToDto(itemRequest)).thenReturn(itemRequestDto);
@@ -113,8 +114,7 @@ public class ItemRequestServiceUnitTest {
     }
 
     @Test
-    void getRequestById_whenItemRequestFound_thenReturnItemRequestDto() {
-        Long requestId = 0L;
+    void getRequestByIdWhenItemRequestFoundThenReturnItemRequestDto() {
         when(itemRequestRepository.findById(requestId)).thenReturn(Optional.of(itemRequest));
         when(itemRequestMapper.itemRequestToDto(itemRequest)).thenReturn(itemRequestDto);
 
@@ -124,15 +124,14 @@ public class ItemRequestServiceUnitTest {
     }
 
     @Test
-    void getRequestById_whenItemRequestNotFound_thenEntityNotFoundExceptionThrow() {
-        Long requestId = 0L;
+    void getRequestByIdWhenItemRequestNotFoundThenEntityNotFoundExceptionThrow() {
         when(itemRequestRepository.findById(requestId)).thenThrow(EntityNotFoundException.class);
 
         assertThrows(EntityNotFoundException.class, () -> itemRequestService.getRequestById(userId, requestId));
     }
 
     @Test
-    void getAllRequests_whenInvoke_thenReturnCollectionItemRequestDto() {
+    void getAllRequestsWhenInvokeThenReturnCollectionItemRequestDto() {
         int from = 1;
         int size = 5;
         Pagination page = new Pagination(from, size);

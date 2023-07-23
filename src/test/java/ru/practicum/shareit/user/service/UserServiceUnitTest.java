@@ -48,9 +48,9 @@ public class UserServiceUnitTest {
     }
 
     @Test
-    void findAll_whenInvoked_thenReturnUserDtoCollections() {
-        Integer from = 1;
-        Integer size = 1;
+    void findAllWhenInvokedThenReturnUserDtoCollections() {
+        int from = 1;
+        int size = 1;
         Pagination page = new Pagination(from, size);
         List<User> usersFromRepository = List.of(user);
         List<UserDto> expectedUsersDto = List.of(userDto);
@@ -63,7 +63,7 @@ public class UserServiceUnitTest {
     }
 
     @Test
-    void findById_whenUserFound_thenReturnedUserDto() {
+    void findByIdWhenUserFoundThenReturnedUserDto() {
         when(userRepository.findById(userId))
                 .thenReturn(Optional.of(user));
         UserDto expectedUserDto = new UserDto();
@@ -76,7 +76,7 @@ public class UserServiceUnitTest {
     }
 
     @Test
-    void findById_whenUserNotFound_thenEntityNotFoundExceptionThrow() {
+    void findByIdWhenUserNotFoundThenEntityNotFoundExceptionThrow() {
         when(userRepository.findById(userId))
                 .thenReturn(Optional.empty());
 
@@ -87,7 +87,7 @@ public class UserServiceUnitTest {
     }
 
     @Test
-    void create_whenCreateUser_returnUserDto() {
+    void createWhenCreateUserReturnUserDto() {
         when(userMapper.userFromDto(userDto)).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
         when(userMapper.userToDto(user))
@@ -100,14 +100,14 @@ public class UserServiceUnitTest {
     }
 
     @Test
-    void delete_whenInvoke_thenInvokeUserRepository() {
+    void deleteWhenInvokeThenInvokeUserRepository() {
         userService.delete(userId);
 
         Mockito.verify(userRepository).deleteById(0L);
     }
 
     @Test
-    void update_whenUserFound_thenUpdatedOnlyAvailableFields() {
+    void updateWhenUserFoundThenUpdatedOnlyAvailableFields() {
         UserDto newUserDto = UserDto.builder()
                 .name("Update").build();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -123,7 +123,7 @@ public class UserServiceUnitTest {
     }
 
     @Test
-    void update_whenUserNotFound_thenEntityNotFoundExceptionThrow() {
+    void updateWhenUserNotFoundThenEntityNotFoundExceptionThrow() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,

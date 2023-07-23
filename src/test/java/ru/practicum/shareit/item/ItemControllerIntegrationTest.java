@@ -56,7 +56,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_whenInvoke_thenStatusCreateItemDtoInBody() {
+    void createWhenInvokeThenStatusCreateItemDtoInBody() {
         itemDto.setName("Name");
         when(itemService.create(userId, itemDto)).thenReturn(itemDto);
 
@@ -74,7 +74,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_whenBodyNotValid_thenStatusBadRequest() {
+    void createWhenBodyNotValidThenStatusBadRequest() {
         mockMvc.perform(post("/items")
                         .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
@@ -86,7 +86,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_whenNotHeadUserId_thenStatusBadRequest() {
+    void createWhenNotHeadUserIdThenStatusBadRequest() {
         mockMvc.perform(post("/items")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(itemDto)))
@@ -97,7 +97,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_whenUserNotFound_thenthenStatusNotFound() {
+    void createWhenUserNotFoundThenStatusNotFound() {
         Long wrongUserId = 100L;
         ResultActions resultActions = mockMvc.perform(post("/items")
                 .header(USERID_HEADER, wrongUserId.toString())
@@ -112,7 +112,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void update_whenInvoke_thenStatusOkItemDtoInBody() {
+    void updateWhenInvokeThenStatusOkItemDtoInBody() {
         when(itemService.update(userId, itemId, itemDto)).thenReturn(itemDto);
 
         String result = mockMvc.perform(patch("/items/{itemId}", itemId.toString())
@@ -129,7 +129,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void update_whenItemNotFound_thenStatusNotFound() {
+    void updateWhenItemNotFoundThenStatusNotFound() {
         when(itemService.update(userId, itemId, itemDto))
                 .thenThrow(AccessException.class);
 
@@ -142,7 +142,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void update_whenUserNotOwner_thenStatusNotFound() {
+    void updateWhenUserNotOwnerThenStatusNotFound() {
         userId = 1L;
         when(itemService.update(userId, itemId, itemDto))
                 .thenThrow(EntityNotFoundException.class);
@@ -156,7 +156,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void update_whenUserNotFound_thenStatusNotFound() {
+    void updateWhenUserNotFoundThenStatusNotFound() {
         userId = 2L;
         when(itemService.update(anyLong(), anyLong(), any()))
                 .thenThrow(EntityNotFoundException.class);
@@ -169,7 +169,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getByItemId_whenInvoke_thenStatusOkItemBookedInBody() {
+    void getByItemIdWhenInvokeThenStatusOkItemBookedInBody() {
         ItemDtoWithBookingsAndComments itemBooked = ItemDtoWithBookingsAndComments.builder()
                 .description("desc")
                 .available(true).build();
@@ -187,7 +187,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getByItemId_whenItemNotFound_thenStatusNotFound() {
+    void getByItemIdWhenItemNotFoundThenStatusNotFound() {
         when(itemService.findById(userId, itemId))
                 .thenThrow(EntityNotFoundException.class);
 
@@ -198,7 +198,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getAllItemsByUserId_whenInvoke_thenStatusOkItemBookedListInBody() {
+    void getAllItemsByUserIdWhenInvokeThenStatusOkItemBookedListInBody() {
         Integer from = 1;
         Integer size = 1;
         List<ItemDtoWithBookingsAndComments> itemBookedList = List.of(ItemDtoWithBookingsAndComments.builder()
@@ -220,7 +220,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getAllItemsByUserId_whenParamsNotValid_thenStatusBadRequest() {
+    void getAllItemsByUserIdWhenParamsNotValidThenStatusBadRequest() {
         Integer from = -1;
         Integer size = -1;
 
@@ -235,7 +235,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void delete_whenInvoke_thenStatusNoContent() {
+    void deleteWhenInvokeThenStatusNoContent() {
         mockMvc.perform(delete("/items/{itemId}", itemId)
                         .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isNoContent());
@@ -245,7 +245,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void search_whenInvoke_thenStatusOk() {
+    void searchWhenInvokeThenStatusOk() {
         String text = "text";
         Integer from = 1;
         Integer size = 1;
@@ -267,7 +267,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void search_whenParamsNotValid_thenStatusBadRequest() {
+    void searchWhenParamsNotValidThenStatusBadRequest() {
         String text = "text";
         Integer from = -1;
         Integer size = -1;
@@ -284,7 +284,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void createComment_whenInvoke_thenStatusOk() {
+    void createCommentWhenInvokeThenStatusOk() {
         when(itemService.createComment(userId, itemId, commentDto)).thenReturn(commentDto);
 
         String result = mockMvc.perform(post("/items/{itemId}/comment", itemId)
@@ -301,7 +301,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void createComment_whenItemNotFound_thenStatusNotFound() {
+    void createCommentWhenItemNotFoundThenStatusNotFound() {
         when(itemService.createComment(userId, itemId, commentDto))
                 .thenThrow(EntityNotFoundException.class);
 
@@ -314,7 +314,7 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void createComment_whenBookingNotFound_thenStatusBadRequest() {
+    void createCommentWhenBookingNotFoundThenStatusBadRequest() {
         when(itemService.createComment(userId, itemId, commentDto))
                 .thenThrow(new ValidationException("Exception message"));
 

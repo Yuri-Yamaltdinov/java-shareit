@@ -53,6 +53,8 @@ public class BookingServiceUnitTest {
 
     private User user;
     private Item item;
+    private User booker;
+    private User owner;
 
 
     @BeforeEach
@@ -66,10 +68,12 @@ public class BookingServiceUnitTest {
         bookingDtoResponse = BookingDto.builder().build();
         user = User.builder().id(1L).build();
         item = Item.builder().owner(user).available(true).build();
+        booker = User.builder().id(0L).build();
+        owner = User.builder().id(0L).build();
     }
 
     @Test
-    void create_whenInvoke_thenReturnBookingResponseDto() {
+    void createWhenInvokeThenReturnBookingResponseDto() {
         when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
         when(itemRepository.findById(any())).thenReturn(Optional.ofNullable(item));
         when(bookingMapper.bookingFromDtoInitial(any(), any(), any())).thenReturn(booking);
@@ -89,7 +93,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void create_whenStartAfterEnd_thenValidationExceptionThrow() {
+    void createWhenStartAfterEndThenValidationExceptionThrow() {
         bookingDtoInitial.setStart(LocalDateTime.MAX);
         bookingDtoInitial.setEnd(LocalDateTime.MIN);
 
@@ -99,7 +103,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void create_whenItemNotAvailable_thenValidationExceptionThrow() {
+    void createWhenItemNotAvailableThenValidationExceptionThrow() {
         item.setAvailable(false);
         when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
         when(itemRepository.findById(any())).thenReturn(Optional.ofNullable(item));
@@ -110,7 +114,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void create_whenUserIsOwner_thenEntityNotFoundExceptionThrow() {
+    void createWhenUserIsOwnerThenEntityNotFoundExceptionThrow() {
         user.setId(0L);
         when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
         when(itemRepository.findById(any())).thenReturn(Optional.ofNullable(item));
@@ -121,7 +125,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void create_whenUserNotFound_thenEntityNotFoundExceptionThrow() {
+    void createWhenUserNotFoundThenEntityNotFoundExceptionThrow() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
@@ -130,7 +134,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void create_whenItemNotFound_thenEntityNotFoundExceptionThrow() {
+    void createWhenItemNotFoundThenEntityNotFoundExceptionThrow() {
         user.setId(0L);
         when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
         when(itemRepository.findById(any())).thenReturn(Optional.empty());
@@ -141,7 +145,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void bookingConfirmation_whenInvokeWithApprovedTrue_thenReturnBookingResponseDtoWithStatusAPPROVED() {
+    void bookingConfirmationWhenInvokeWithApprovedTrueThenReturnBookingResponseDtoWithStatusAPPROVED() {
         user.setId(0L);
         booking.setStatus(BookingState.WAITING);
         booking.setItem(item);
@@ -161,7 +165,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void setStatus_whenInvokeWithApprovedFalse_thenReturnBookingResponseDtoWithStatusREJECTED() {
+    void setStatusWhenInvokeWithApprovedFalseThenReturnBookingResponseDtoWithStatusREJECTED() {
         user.setId(0L);
         booking.setStatus(BookingState.WAITING);
         booking.setItem(item);
@@ -181,7 +185,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void setStatus_whenBookingNotFound_thenEntityNotFoundExceptionThrow() {
+    void setStatusWhenBookingNotFoundThenEntityNotFoundExceptionThrow() {
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
@@ -190,7 +194,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void setStatus_whenUserNotOwner_thenEntityNotFoundExceptionThrow() {
+    void setStatusWhenUserNotOwnerThenEntityNotFoundExceptionThrow() {
         booking.setStatus(BookingState.WAITING);
         booking.setItem(item);
         booking.setBooker(user);
@@ -203,7 +207,7 @@ public class BookingServiceUnitTest {
 
 
     @Test
-    void setStatus_whenBookingStatusApproved_thenValidationExceptionThrow() {
+    void setStatusWhenBookingStatusApprovedThenValidationExceptionThrow() {
         user.setId(0L);
         booking.setStatus(BookingState.APPROVED);
         booking.setItem(item);
@@ -216,7 +220,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenWrongState_thenValidationExceptionThrow() {
+    void findAllByStateWhenWrongStateThenValidationExceptionThrow() {
         String state = "wrong";
 
         assertThrows(ValidationException.class,
@@ -224,7 +228,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenOwnerAndCURRENTState_thenInvokeFindByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc() {
+    void findAllByStateWhenOwnerAndCURRENTStateThenInvokeFindByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc() {
         String state = "CURRENT";
 
         bookingService.findAllByState(userId, state, 1, 1);
@@ -236,7 +240,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenOwnerAndFUTUREState_thenInvokeFindByItemOwnerIdAndStartAfterOrderByStartDesc() {
+    void findAllByStateWhenOwnerAndFUTUREStateThenInvokeFindByItemOwnerIdAndStartAfterOrderByStartDesc() {
         String state = "FUTURE";
 
         bookingService.findAllByState(userId, state, 1, 1);
@@ -247,7 +251,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenOwnerAndPASTState_thenInvokeFindByItemOwnerIdAndEndBeforeOrderByStartDesc() {
+    void findAllByStateWhenOwnerAndPASTStateThenInvokeFindByItemOwnerIdAndEndBeforeOrderByStartDesc() {
         String state = "PAST";
 
         bookingService.findAllByState(userId, state, 1, 1);
@@ -258,7 +262,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenOwnerAndWAITINGState_thenInvokeFindByItemOwnerIdAndStatusOrderByStartDescWithWaitingInParams() {
+    void findAllByStateWhenOwnerAndWAITINGStateThenInvokeFindByItemOwnerIdAndStatusOrderByStartDescWithWaitingInParams() {
         String state = "WAITING";
 
         bookingService.findAllByState(userId, state, 1, 1);
@@ -272,7 +276,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenOwnerAndREJECTEDState_thenInvokeFindByItemOwnerIdAndStatusOrderByStartDescWithRejectedInParams() {
+    void findAllByStateWhenOwnerAndREJECTEDStateThenInvokeFindByItemOwnerIdAndStatusOrderByStartDescWithRejectedInParams() {
         String state = "REJECTED";
 
         bookingService.findAllByState(userId, state, 1, 1);
@@ -286,7 +290,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenOwnerAndAllState_thenInvokeFindByItemOwnerIdOrderByStartDesc() {
+    void findAllByStateWhenOwnerAndAllStateThenInvokeFindByItemOwnerIdOrderByStartDesc() {
         String state = "ALL";
 
         bookingService.findAllByState(userId, state, 1, 1);
@@ -296,7 +300,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenNotOwnerAndCURRENTState_thenInvokeFindByBookerIdAndStartBeforeAndEndAfterOrderByStartAsc() {
+    void findAllByStateWhenNotOwnerAndCURRENTStateThenInvokeFindByBookerIdAndStartBeforeAndEndAfterOrderByStartAsc() {
         String state = "CURRENT";
 
         bookingService.findAllByState(userId, state, 1, 1);
@@ -308,7 +312,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenNotOwnerAndFUTUREState_thenInvokeFindAllByBookerIdAndStartAfterOrderByStartDesc() {
+    void findAllByStateWhenNotOwnerAndFUTUREStateThenInvokeFindAllByBookerIdAndStartAfterOrderByStartDesc() {
         String state = "FUTURE";
 
         bookingService.findAllByState(userId, state, 1, 1);
@@ -319,7 +323,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenNotOwnerAndPASTState_thenInvokeFindAllByBookerIdAndEndBeforeOrderByStartDesc() {
+    void findAllByStateWhenNotOwnerAndPASTStateThenInvokeFindAllByBookerIdAndEndBeforeOrderByStartDesc() {
         String state = "PAST";
         when(userService.findById(anyLong())).thenReturn(new UserDto());
 
@@ -332,7 +336,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenNotOwnerAndWAITINGState_thenInvokeFindAllByBookerIdAndStatusOrderByStartDescWithWaitingInParams() {
+    void findAllByStateWhenNotOwnerAndWAITINGStateThenInvokeFindAllByBookerIdAndStatusOrderByStartDescWithWaitingInParams() {
         String state = "WAITING";
         when(userService.findById(anyLong())).thenReturn(new UserDto());
 
@@ -347,7 +351,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenNotOwnerAndREJECTEDState_thenInvokeFindAllByBookerIdAndStatusOrderByStartDescWithRejectedInParams() {
+    void findAllByStateWhenNotOwnerAndREJECTEDStateThenInvokeFindAllByBookerIdAndStatusOrderByStartDescWithRejectedInParams() {
         String state = "REJECTED";
         when(userService.findById(anyLong())).thenReturn(new UserDto());
 
@@ -362,7 +366,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findAllByState_whenNotOwnerAndAllState_thenInvokeFindAllByBookerIdOrderByStartDesc() {
+    void findAllByStateWhenNotOwnerAndAllStateThenInvokeFindAllByBookerIdOrderByStartDesc() {
         String state = "ALL";
         when(userService.findById(anyLong())).thenReturn(new UserDto());
 
@@ -373,8 +377,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findById_whenInvoke_thenReturnBookingDto() {
-        User booker = User.builder().id(0L).build();
+    void findByIdWhenInvokeThenReturnBookingDto() {
         booking.setStatus(BookingState.WAITING);
         booking.setItem(item);
         booking.setBooker(booker);
@@ -389,7 +392,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findById_whenBookingNotFound_thenEntityNotFoundExceptionThrow() {
+    void findByIdWhenBookingNotFoundThenEntityNotFoundExceptionThrow() {
         when(userService.findById(anyLong())).thenReturn(new UserDto());
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class,
@@ -397,8 +400,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findById_whenUserNotBooker_thenReturnBookingDto() {
-        User owner = User.builder().id(0L).build();
+    void findByIdWhenUserNotBookerThenReturnBookingDto() {
         item.setOwner(owner);
         booking.setStatus(BookingState.WAITING);
         booking.setItem(item);
@@ -414,8 +416,7 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findById_whenUserNotOwner_thenReturnBookingDto() {
-        User booker = User.builder().id(0L).build();
+    void findByIdWhenUserNotOwnerThenReturnBookingDto() {
         booking.setStatus(BookingState.WAITING);
         booking.setItem(item);
         booking.setBooker(booker);
@@ -430,9 +431,9 @@ public class BookingServiceUnitTest {
     }
 
     @Test
-    void findById_whenUserNotOwnerAndNotBooker_thenEntityNotFoundExceptionThrow() {
-        User booker = User.builder().id(1L).build();
-        User owner = User.builder().id(2L).build();
+    void findByIdWhenUserNotOwnerAndNotBookerThenEntityNotFoundExceptionThrow() {
+        booker.setId(1L);
+        owner.setId(2L);
         item.setOwner(owner);
         booking.setStatus(BookingState.WAITING);
         booking.setItem(item);

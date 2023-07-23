@@ -49,6 +49,12 @@ public class BookingServiceIntegrationTest {
     private Long userId;
     private Long itemId;
     private BookingDtoInitial bookingRequestDto;
+    private UserDto userDtoBooker;
+    private final List<User> users = new ArrayList<>();
+    private final List<Item> items = new ArrayList<>();
+    private final List<Booking> bookings = new ArrayList<>();
+    private Long bookerId;
+    private Long ownerId;
 
     @BeforeEach
     void beforeEach() {
@@ -67,13 +73,19 @@ public class BookingServiceIntegrationTest {
                 .itemId(itemId)
                 .start(LocalDateTime.now())
                 .end(LocalDateTime.now().plusHours(1L)).build();
+        userDtoBooker = UserDto.builder()
+                .name("Booker")
+                .email("booker@mail.ru").build();
+
+        fillUserRepository(users);
+        bookerId = users.get(1).getId();
+        ownerId = users.get(0).getId();
+        fillItemRepository(users, items);
+        fillBookingRepository(users, items, bookings);
     }
 
     @Test
     void create() {
-        UserDto userDtoBooker = UserDto.builder()
-                .name("Booker")
-                .email("booker@mail.ru").build();
         Long bookerId = userService.create(userDtoBooker).getId();
         Long bookingId = bookingService.create(bookerId, bookingRequestDto).getId();
         TypedQuery<Booking> query = entityManager.createQuery(
@@ -91,9 +103,6 @@ public class BookingServiceIntegrationTest {
 
     @Test
     void setStatus() {
-        UserDto userDtoBooker = UserDto.builder()
-                .name("Booker")
-                .email("booker@email.ru").build();
         Long bookerId = userService.create(userDtoBooker).getId();
         Long bookingId = bookingService.create(bookerId, bookingRequestDto).getId();
 
@@ -108,30 +117,28 @@ public class BookingServiceIntegrationTest {
     }
 
     @Test
-    void getAllBookingsByState_whenInvokeBooker_thenReturnListBookingDto() {
-        List<User> users = new ArrayList<>();
-        fillUserRepository(users);
-        Long bookerId = users.get(1).getId();
-        List<Item> items = new ArrayList<>();
-        fillItemRepository(users, items);
-        List<Booking> bookings = new ArrayList<>();
-        fillBookingRepository(users, items, bookings);
-
+    void getAllBookingsByStateALLWhenInvokeBookerThenReturnListBookingDto() {
         List<BookingDto> resultBookings =
                 bookingService.findAllByState(bookerId,
                         "ALL",
                         0,
                         10);
         assertThat(resultBookings, hasSize(5));
+    }
 
-        resultBookings = bookingService.findAllByState(bookerId,
+    @Test
+    void getAllBookingsByStateCURRENTWhenInvokeBookerThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByState(bookerId,
                 "CURRENT",
                 0,
                 10);
         assertThat(resultBookings, hasSize(1));
         assertThat(resultBookings.get(0).getId(), equalTo(bookings.get(0).getId()));
+    }
 
-        resultBookings = bookingService.findAllByState(bookerId,
+    @Test
+    void getAllBookingsByStateFUTUREWhenInvokeBookerThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByState(bookerId,
                 "FUTURE",
                 0,
                 10);
@@ -139,22 +146,31 @@ public class BookingServiceIntegrationTest {
         assertThat(resultBookings.get(0).getId(), equalTo(bookings.get(4).getId()));
         assertThat(resultBookings.get(1).getId(), equalTo(bookings.get(3).getId()));
         assertThat(resultBookings.get(2).getId(), equalTo(bookings.get(2).getId()));
+    }
 
-        resultBookings = bookingService.findAllByState(bookerId,
+    @Test
+    void getAllBookingsByStatePASTWhenInvokeBookerThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByState(bookerId,
                 "PAST",
                 0,
                 10);
         assertThat(resultBookings, hasSize(1));
         assertThat(resultBookings.get(0).getId(), equalTo(bookings.get(1).getId()));
+    }
 
-        resultBookings = bookingService.findAllByState(bookerId,
+    @Test
+    void getAllBookingsByStateWAITINGWhenInvokeBookerThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByState(bookerId,
                 "WAITING",
                 0,
                 10);
         assertThat(resultBookings, hasSize(1));
         assertThat(resultBookings.get(0).getId(), equalTo(bookings.get(4).getId()));
+    }
 
-        resultBookings = bookingService.findAllByState(bookerId,
+    @Test
+    void getAllBookingsByStateREJECTEDWhenInvokeBookerThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByState(bookerId,
                 "REJECTED",
                 0,
                 10);
@@ -163,30 +179,28 @@ public class BookingServiceIntegrationTest {
     }
 
     @Test
-    void findAllByItemOwner_whenInvoke_thenReturnListBookingDto() {
-        List<User> users = new ArrayList<>();
-        fillUserRepository(users);
-        Long ownerId = users.get(0).getId();
-        List<Item> items = new ArrayList<>();
-        fillItemRepository(users, items);
-        List<Booking> bookings = new ArrayList<>();
-        fillBookingRepository(users, items, bookings);
-
+    void findAllByItemOwnerAndStateALLWhenInvokeThenReturnListBookingDto() {
         List<BookingDto> resultBookings =
                 bookingService.findAllByItemOwner(ownerId,
                         "ALL",
                         0,
                         10);
         assertThat(resultBookings, hasSize(5));
+    }
 
-        resultBookings = bookingService.findAllByItemOwner(ownerId,
+    @Test
+    void findAllByItemOwnerAndStateCURRENTWhenInvokeThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByItemOwner(ownerId,
                 "CURRENT",
                 0,
                 10);
         assertThat(resultBookings, hasSize(1));
         assertThat(resultBookings.get(0).getId(), equalTo(bookings.get(0).getId()));
+    }
 
-        resultBookings = bookingService.findAllByItemOwner(ownerId,
+    @Test
+    void findAllByItemOwnerAndStateFUTUREWhenInvokeThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByItemOwner(ownerId,
                 "FUTURE",
                 0,
                 10);
@@ -194,22 +208,31 @@ public class BookingServiceIntegrationTest {
         assertThat(resultBookings.get(0).getId(), equalTo(bookings.get(4).getId()));
         assertThat(resultBookings.get(1).getId(), equalTo(bookings.get(3).getId()));
         assertThat(resultBookings.get(2).getId(), equalTo(bookings.get(2).getId()));
+    }
 
-        resultBookings = bookingService.findAllByItemOwner(ownerId,
+    @Test
+    void findAllByItemOwnerAndStatePASTWhenInvokeThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByItemOwner(ownerId,
                 "PAST",
                 0,
                 10);
         assertThat(resultBookings, hasSize(1));
         assertThat(resultBookings.get(0).getId(), equalTo(bookings.get(1).getId()));
+    }
 
-        resultBookings = bookingService.findAllByItemOwner(ownerId,
+    @Test
+    void findAllByItemOwnerAndStateWAITINGWhenInvokeThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByItemOwner(ownerId,
                 "WAITING",
                 0,
                 10);
         assertThat(resultBookings, hasSize(1));
         assertThat(resultBookings.get(0).getId(), equalTo(bookings.get(4).getId()));
+    }
 
-        resultBookings = bookingService.findAllByItemOwner(ownerId,
+    @Test
+    void findAllByItemOwnerAndStateREJECTEDWhenInvokeThenReturnListBookingDto() {
+        List<BookingDto> resultBookings = bookingService.findAllByItemOwner(ownerId,
                 "REJECTED",
                 0,
                 10);

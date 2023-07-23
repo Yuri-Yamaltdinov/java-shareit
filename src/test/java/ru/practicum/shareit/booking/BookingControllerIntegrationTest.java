@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoInitial;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -55,9 +56,8 @@ public class BookingControllerIntegrationTest {
                 .end(LocalDateTime.now().plusHours(2L)).build();
     }
 
-    @SneakyThrows
     @Test
-    void create_whenInvoke_thenReturnStatusOk() {
+    void createWhenInvokeThenReturnStatusOk() throws Exception {
         when(bookingService.create(userId, bookingRequestDto)).thenReturn(bookingResponseDto);
 
         String result = mockMvc.perform(post("/bookings")
@@ -72,10 +72,9 @@ public class BookingControllerIntegrationTest {
         assertEquals(objectMapper.writeValueAsString(bookingResponseDto), result);
     }
 
-    @SneakyThrows
     @Test
-    void create_whenUserNotFound_thenReturnStatusNotFound() {
-        when(bookingService.create(userId, bookingRequestDto)).thenThrow(EntityNotFoundException.class);
+    void createWhenUserNotFoundThenReturnStatusNotFound() throws Exception {
+        when(bookingService.create(userId, bookingRequestDto)).thenThrow(new EntityNotFoundException(Booking.class, "Entity not found"));
 
         mockMvc.perform(post("/bookings")
                         .header(USERID_HEADER, userId.toString())
@@ -86,7 +85,7 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_whenNotValidBody_thenReturnStatusBadRequest() {
+    void createWhenNotValidBodyThenReturnStatusBadRequest() {
         bookingRequestDto.setStart(LocalDateTime.now().minusHours(1L));
 
         mockMvc.perform(post("/bookings")
@@ -100,7 +99,7 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void setStatus_whenInvoke_thenReturnStatusOkAndBookingResponseDtoInBody() {
+    void setStatusWhenInvokeThenReturnStatusOkAndBookingResponseDtoInBody() {
         Long bookingId = 0L;
         Boolean approved = true;
         when(bookingService.setStatus(userId, bookingId, approved)).thenReturn(bookingResponseDto);
@@ -113,7 +112,7 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void setStatus_whenDataNotFound_thenReturnStatusNotFound() {
+    void setStatusWhenDataNotFoundThenReturnStatusNotFound() {
         Long bookingId = 0L;
         Boolean approved = true;
         when(bookingService.setStatus(userId, bookingId, approved))
@@ -127,7 +126,7 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void setStatus_whenNoApprovedParam_thenReturnStatusBadRequest() {
+    void setStatusWhenNoApprovedParamThenReturnStatusBadRequest() {
         Long bookingId = 0L;
         Boolean approved = true;
         when(bookingService.setStatus(userId, bookingId, approved))
@@ -140,7 +139,7 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void setStatus_whenNotUserOwner_thenReturnStatusBadRequest() {
+    void setStatusWhenNotUserOwnerThenReturnStatusBadRequest() {
         Long bookingId = 0L;
         Boolean approved = true;
         when(bookingService.setStatus(userId, bookingId, approved))
@@ -153,7 +152,7 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findById_whenInvoke_thenReturnStatusOK() {
+    void findByIdWhenInvokeThenReturnStatusOK() {
         Long bookingId = 0L;
         BookingDto responseDto = BookingDto.builder().build();
         when(bookingService.findById(userId, bookingId)).thenReturn(responseDto);
@@ -171,7 +170,7 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findById_whenDataNotFound_thenReturnStatusNotFound() {
+    void findByIdWhenDataNotFoundThenReturnStatusNotFound() {
         Long bookingId = 0L;
         when(bookingService.findById(userId, bookingId))
                 .thenThrow(EntityNotFoundException.class);
@@ -183,7 +182,7 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findById_whenDuplicateBookingStatus_thenReturnStatusBadRequest() {
+    void findByIdWhenDuplicateBookingStatusThenReturnStatusBadRequest() {
         Long bookingId = 0L;
         when(bookingService.findById(userId, bookingId))
                 .thenThrow(new ValidationException("exception message"));
@@ -195,7 +194,7 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findAllByState_whenInvoke_thenReturnStatusOK() {
+    void findAllByStateWhenInvokeThenReturnStatusOK() {
         String state = "ALL";
         Integer from = 1;
         Integer size = 1;
@@ -218,39 +217,39 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findAllByState_whenNotValidParams_thenReturnStatusBadRequest() {
+    void findAllByStateWhenNotValidParamsThenReturnStatusBadRequest() {
         String state = "ALL";
-        Integer from = -1;
-        Integer size = -1;
+        int from = -1;
+        int size = -1;
 
         mockMvc.perform(get("/bookings")
                         .header(USERID_HEADER, userId.toString())
                         .param("state", state)
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
+                        .param("from", Integer.toString(from))
+                        .param("size", Integer.toString(size)))
                 .andExpect(status().isBadRequest());
     }
 
     @SneakyThrows
     @Test
-    void findAllByState_whenNotValidState_thenReturnStatusBadRequest() {
+    void findAllByStateWhenNotValidStateThenReturnStatusBadRequest() {
         String state = "NotValid";
-        Integer from = 1;
-        Integer size = 1;
+        int from = 1;
+        int size = 1;
         when(bookingService.findAllByState(any(), any(), any(), any()))
                 .thenThrow(new ValidationException("exception message"));
 
         mockMvc.perform(get("/bookings")
                         .header(USERID_HEADER, userId.toString())
                         .param("state", state)
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
+                        .param("from", Integer.toString(from))
+                        .param("size", Integer.toString(size)))
                 .andExpect(status().isBadRequest());
     }
 
     @SneakyThrows
     @Test
-    void findAllByItemOwner_whenInvoke_thenReturnStatusOK() {
+    void findAllByItemOwnerWhenInvokeThenReturnStatusOK() {
         String state = "ALL";
         Integer from = 1;
         Integer size = 1;
@@ -273,15 +272,15 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findAllByItemOwner_whenNotValidParams_thenReturnStatusBadRequest() {
+    void findAllByItemOwnerWhenNotValidParamsThenReturnStatusBadRequest() {
         String state = "ALL";
-        Integer from = -1;
-        Integer size = -1;
+        int from = -1;
+        int size = -1;
         mockMvc.perform(get("/bookings/owner")
                         .header(USERID_HEADER, userId.toString())
                         .param("state", state)
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
+                        .param("from", Integer.toString(from))
+                        .param("size", Integer.toString(size)))
                 .andExpect(status().isBadRequest());
     }
 }

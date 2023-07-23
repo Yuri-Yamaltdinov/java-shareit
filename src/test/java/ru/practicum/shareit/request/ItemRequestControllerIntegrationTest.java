@@ -30,17 +30,20 @@ public class ItemRequestControllerIntegrationTest {
     @MockBean
     private ItemRequestService itemRequestService;
     private Long userId;
+    private Long requestId;
+    private ItemRequestDto itemRequestDto;
 
     @BeforeEach
     void beforeEach() {
         userId = 0L;
+        requestId = 0L;
+        itemRequestDto = ItemRequestDto.builder().build();
     }
 
     @SneakyThrows
     @Test
-    void create_whenInvoke_thenInvokeItemRequestService() {
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
-                .description("desc").build();
+    void createWhenInvokeThenInvokeItemRequestService() {
+        itemRequestDto.setDescription("desc");
         when(itemRequestService.create(userId, itemRequestDto)).thenReturn(itemRequestDto);
 
         String result = mockMvc.perform(post("/requests")
@@ -57,9 +60,7 @@ public class ItemRequestControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_whenBodyNotValid_thenStatusBadRequestBadRequest() {
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder().build();
-
+    void createWhenBodyNotValidThenStatusBadRequestBadRequest() {
         mockMvc.perform(post("/requests")
                         .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
@@ -71,9 +72,8 @@ public class ItemRequestControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_whenUserNotFound_thenStatusNotFound() {
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
-                .description("desc").build();
+    void createWhenUserNotFoundThenStatusNotFound() {
+        itemRequestDto.setDescription("desc");
         when(itemRequestService.create(userId, itemRequestDto))
                 .thenThrow(EntityNotFoundException.class);
 
@@ -86,7 +86,7 @@ public class ItemRequestControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getAllRequestsByUser_whenInvoke_thenStatusOkAndListRequestsInBody() {
+    void getAllRequestsByUserWhenInvokeThenStatusOkAndListRequestsInBody() {
         List<ItemRequestDto> itemRequestDtoList = List.of(ItemRequestDto.builder()
                 .description("desc").build());
         when(itemRequestService.getAllRequestByUser(userId)).thenReturn(itemRequestDtoList);
@@ -103,10 +103,8 @@ public class ItemRequestControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getRequestById_whenInvoke_thenStatusOkAndItemRequestsInBody() {
-        Long requestId = 0L;
-        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
-                .description("desc").build();
+    void getRequestByIdWhenInvokeThenStatusOkAndItemRequestsInBody() {
+        itemRequestDto.setDescription("desc");
         when(itemRequestService.getRequestById(userId, requestId)).thenReturn(itemRequestDto);
 
         String result = mockMvc.perform(get("/requests/{requestId}", requestId)
@@ -121,8 +119,7 @@ public class ItemRequestControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getRequestById_whenItemRequestNotFound_thenStatusNotFound() {
-        Long requestId = 0L;
+    void getRequestByIdWhenItemRequestNotFoundThenStatusNotFound() {
         when(itemRequestService.getRequestById(userId, requestId))
                 .thenThrow(EntityNotFoundException.class);
 
@@ -133,7 +130,7 @@ public class ItemRequestControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getAllRequests_withValidParams() {
+    void getAllRequestsWithValidParams() {
         List<ItemRequestDto> itemRequestDtoList = List.of(ItemRequestDto.builder()
                 .description("desc").build());
         when(itemRequestService.getAllRequests(userId, 1, 1)).thenReturn(itemRequestDtoList);
@@ -152,7 +149,7 @@ public class ItemRequestControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getAllRequests_withNotValidParams_thenReturnBadRequest() {
+    void getAllRequestsWithNotValidParamsThenReturnBadRequest() {
         mockMvc.perform(get("/requests/all")
                         .header(USERID_HEADER, userId.toString())
                         .param("from", "-1")

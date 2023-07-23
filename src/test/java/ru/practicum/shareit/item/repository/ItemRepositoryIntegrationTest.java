@@ -33,7 +33,7 @@ public class ItemRepositoryIntegrationTest {
 
 
     @Test
-    void pageableFindByOwnerId_whenInvoked_thenItemsForRequestedOwnerAndPageReturned() {
+    void pageableFindByOwnerIdWhenInvokedThenItemsForRequestedOwnerAndPageReturned() {
         User owner = saveRandomUser();
         Pagination pageRequest = new Pagination(1, 1);
         itemRepository.save(Item.builder()
@@ -57,7 +57,7 @@ public class ItemRepositoryIntegrationTest {
     }
 
     @Test
-    void searchByText_whenInvoked_thenItemsFoundByTextInNameOrDescriptionCaseInsensitive() {
+    void searchByTextWhenInvokedThenItemsFoundByTextInNameOrDescriptionCaseInsensitive() {
         User owner = saveRandomUser();
         Pagination pageRequest = new Pagination(0, 3);
         String text = "ITEM_1";
@@ -91,7 +91,7 @@ public class ItemRepositoryIntegrationTest {
     }
 
     @Test
-    void findAll_whenInvoked_thenItemsWithRequestFound() {
+    void findAllWhenInvokedThenItemsWithRequestFound() {
         User owner = saveRandomUser();
         ItemRequest itemRequest = saveRandomRequest();
         Pagination pageRequest = new Pagination(0, 10);

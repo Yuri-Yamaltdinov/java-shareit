@@ -39,7 +39,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_whenInvoke_thenInvokeUserService() {
+    void createWhenInvokeThenInvokeUserService() {
         when(userService.create(userDto)).thenReturn(userDto);
 
         String result = mockMvc.perform(post("/users")
@@ -56,7 +56,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_withNotValidParams_thenReturnBadRequest() {
+    void createWithNotValidParamsThenReturnBadRequest() {
         userDto.setName(null);
         userDto.setEmail(null);
         mockMvc.perform(post("/users")
@@ -69,7 +69,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void create_whenDuplicateUser_thenConflictStatus() {
+    void createWhenDuplicateUserThenConflictStatus() {
         when(userService.create(userDto)).thenThrow(ConflictException.class);
 
         mockMvc.perform(post("/users")
@@ -82,7 +82,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findById_whenInvoke_thenInvokeUserService() {
+    void findByIdWhenInvokeThenInvokeUserService() {
         mockMvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isOk());
 
@@ -91,7 +91,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findById_whenUserNotFound_thenStatusNotFound() {
+    void findByIdWhenUserNotFoundThenStatusNotFound() {
         when(userService.findById(userId)).thenThrow(EntityNotFoundException.class);
         mockMvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isNotFound());
@@ -99,7 +99,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findAll_withValidParams() {
+    void findAllWithValidParams() {
         mockMvc.perform(get("/users")
                         .param("from", "1")
                         .param("size", "1"))
@@ -110,7 +110,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findAll_withNotValidParams_thenReturnBadRequest() {
+    void findAllWithNotValidParamsThenReturnBadRequest() {
         mockMvc.perform(get("/users")
                         .param("from", "-1")
                         .param("size", "-1"))
@@ -121,7 +121,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findAll_withoutParams() {
+    void findAllWithoutParams() {
         int defaultFrom = 0;
         int defaultSize = 10;
         mockMvc.perform(get("/users"))
@@ -132,7 +132,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void delete_whenInvoke_thenNoContentStatus() {
+    void deleteWhenInvokeThenNoContentStatus() {
         mockMvc.perform(delete("/users/{userId}", userId))
                 .andExpect(status().isNoContent());
         verify(userService).delete(userId);
@@ -140,7 +140,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void update_whenInvoke_thenStatusOK() {
+    void updateWhenInvokeThenStatusOK() {
         when(userService.update(userId, userDto)).thenReturn(userDto);
 
         String result = mockMvc.perform(patch("/users/{userId}", userId)
@@ -157,7 +157,7 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void update_whenUserNotFound_thenStatusNotFound() {
+    void updateWhenUserNotFoundThenStatusNotFound() {
         when(userService.update(userId, userDto)).thenThrow(EntityNotFoundException.class);
         mockMvc.perform(patch("/users/{userId}", userId)
                         .contentType("application/json")
