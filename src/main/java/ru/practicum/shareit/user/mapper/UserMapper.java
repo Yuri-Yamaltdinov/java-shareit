@@ -1,39 +1,16 @@
 package ru.practicum.shareit.user.mapper;
 
-import lombok.experimental.UtilityClass;
-import ru.practicum.shareit.exception.ValidationException;
+import org.mapstruct.Mapper;
 import ru.practicum.shareit.user.dto.UserBookingDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
-@UtilityClass
-public class UserMapper {
-    public UserDto toUserDto(User user) {
-        if (user == null) {
-            throw new ValidationException("User entity is null");
-        }
-        return UserDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    public User fromUserDto(UserDto userDto) {
-        if (userDto == null) {
-            throw new ValidationException("UserDto entity is null");
-        }
-        return User.builder()
-                .id(userDto.getId())
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .build();
-    }
+    UserDto userToDto(User user);
 
-    public UserBookingDto userToUserBookingDto(User user) {
-        return UserBookingDto.builder()
-                .id(user.getId())
-                .build();
-    }
+    User userFromDto(UserDto userDto);
 
+    UserBookingDto userToUserBookingDto(User user);
 }

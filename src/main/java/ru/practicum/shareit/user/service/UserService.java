@@ -9,7 +9,7 @@ public interface UserService {
 
     UserDto findById(Long id);
 
-    List<UserDto> findAll();
+    List<UserDto> findAll(Integer from, Integer size);
 
     UserDto update(Long userId, UserDto userDto);
 

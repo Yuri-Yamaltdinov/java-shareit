@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
@@ -19,9 +20,12 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.util.Pagination;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -38,14 +42,25 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final UserService userService;
     private final CommentMapper commentMapper;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
+    private final BookingMapper bookingMapper;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
     public ItemDto create(Long userId, ItemDto itemDto) {
-        User user = UserMapper.fromUserDto(userService.findById(userId));
-        Item item = ItemMapper.fromDto(itemDto);
+        User user = userMapper.userFromDto(userService.findById(userId));
+        Item item = itemMapper.itemFromDto(itemDto);
+
+        if (itemDto.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new EntityNotFoundException(ItemRequest.class, String.format("ID: %s", itemDto.getRequestId())));
+            item.setRequest(request);
+        }
         item.setOwner(user);
-        return ItemMapper.toDto(itemRepository.save(item));
+
+        return itemMapper.itemToDto(itemRepository.save(item));
     }
 
     @Override
@@ -64,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
         item.setDescription(itemDto.getDescription() != null ? itemDto.getDescription() : item.getDescription());
         item.setAvailable(itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable());
 
-        return ItemMapper.toDto(item);
+        return itemMapper.itemToDto(item);
     }
 
     @Override
@@ -74,6 +89,7 @@ public class ItemServiceImpl implements ItemService {
                 () -> new EntityNotFoundException(Item.class, String.format("Item with id %d not found in storage",
                         itemId))
         );
+        ItemDtoWithBookingsAndComments itemDtoWithBookingsAndComments = itemMapper.itemToItemDtoWithBookingAndComments(item);
 
         BookingInfoDto lastBookingDto = null;
         BookingInfoDto nextBookingDto = null;
@@ -84,44 +100,53 @@ public class ItemServiceImpl implements ItemService {
                             item.getId(),
                             BookingState.APPROVED,
                             LocalDateTime.now())
-                    .map(BookingMapper::bookingToInfoDto)
+                    .map(bookingMapper::bookingToInfoDto)
                     .orElse(null);
+            itemDtoWithBookingsAndComments.setLastBooking(lastBookingDto);
 
             nextBookingDto = bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
                             item.getId(),
                             BookingState.APPROVED,
                             LocalDateTime.now())
-                    .map(BookingMapper::bookingToInfoDto)
+                    .map(bookingMapper::bookingToInfoDto)
                     .orElse(null);
+            itemDtoWithBookingsAndComments.setNextBooking(nextBookingDto);
         }
 
-        List<CommentDto> comments = commentRepository.findByItemIdOrderByCreatedDesc(itemId).stream()
+        List<CommentDto> commentsDto = commentRepository.findByItemIdOrderByCreatedDesc(itemId).stream()
                 .map(commentMapper::commentToDto)
                 .collect(Collectors.toList());
+        itemDtoWithBookingsAndComments.setComments(commentsDto);
 
-        return ItemMapper.toItemDtoWithBookingAndComments(item, lastBookingDto, nextBookingDto, comments);
+        return itemDtoWithBookingsAndComments;
     }
 
     @Override
-    public List<ItemDtoWithBookingsAndComments> findAll(Long userId) {
+    public List<ItemDtoWithBookingsAndComments> findAll(Long userId, Integer from, Integer size) {
         userService.findById(userId);
-        List<ItemDtoWithBookingsAndComments> items = itemRepository.findAllByUserId(userId)
+        Pagination page = new Pagination(from, size);
+
+        List<ItemDtoWithBookingsAndComments> items = itemRepository.findAllByUserId(userId, page)
                 .stream()
                 .map(item -> {
+                    ItemDtoWithBookingsAndComments itemDtoFull = itemMapper.itemToItemDtoWithBookingAndComments(item);
                     BookingInfoDto lastBookingDto = bookingRepository.findFirstByItemIdAndStatusAndStartBeforeOrderByEndDesc(
                                     item.getId(), BookingState.APPROVED, LocalDateTime.now())
-                            .map(BookingMapper::bookingToInfoDto)
+                            .map(bookingMapper::bookingToInfoDto)
                             .orElse(null);
+                    itemDtoFull.setLastBooking(lastBookingDto);
                     BookingInfoDto nextBookingDto = bookingRepository.findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(
                                     item.getId(), BookingState.APPROVED, LocalDateTime.now())
-                            .map(BookingMapper::bookingToInfoDto)
+                            .map(bookingMapper::bookingToInfoDto)
                             .orElse(null);
+                    itemDtoFull.setNextBooking(nextBookingDto);
 
                     List<CommentDto> comments = commentRepository.findByItem(item).stream()
                             .map(commentMapper::commentToDto)
                             .collect(Collectors.toList());
+                    itemDtoFull.setComments(comments);
 
-                    return ItemMapper.toItemDtoWithBookingAndComments(item, lastBookingDto, nextBookingDto, comments);
+                    return itemDtoFull;
                 })
                 .sorted(Comparator.comparingLong(ItemDtoWithBookingsAndComments::getId))
                 .collect(Collectors.toList());
@@ -144,24 +169,27 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(Long userId, String text) {
+    public List<ItemDto> search(Long userId, String text, Integer from, Integer size) {
         userService.findById(userId);
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
-        List<Item> items = itemRepository.search(text);
+
+        Pagination page = new Pagination(from, size);
+        Page<Item> items = itemRepository.search(text, page);
+
         if (items.isEmpty()) {
-            throw new EntityNotFoundException(Item.class, String.format("text: %s", text));
+            throw new EntityNotFoundException(Item.class, "Appropriate items not found in storage");
         }
         return items.stream()
-                .map(ItemMapper::toDto)
+                .map(itemMapper::itemToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
-        User author = UserMapper.fromUserDto(userService.findById(userId));
+        User author = userMapper.userFromDto(userService.findById(userId));
         Item item = itemRepository.findById(itemId).orElseThrow(
                 () -> new EntityNotFoundException(Item.class, String.format("Item with id %d not found in storage",
                         itemId))
