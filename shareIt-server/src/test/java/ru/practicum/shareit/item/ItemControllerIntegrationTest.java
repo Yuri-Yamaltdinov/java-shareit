@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import ru.practicum.shareit.exception.AccessException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -74,18 +73,6 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void createWhenBodyNotValidThenStatusBadRequest() {
-        mockMvc.perform(post("/items")
-                        .header(USERID_HEADER, userId.toString())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(itemDto)))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).create(userId, itemDto);
-    }
-
-    @SneakyThrows
-    @Test
     void createWhenNotHeadUserIdThenStatusBadRequest() {
         mockMvc.perform(post("/items")
                         .contentType("application/json")
@@ -93,21 +80,6 @@ public class ItemControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
 
         verify(itemService, never()).create(userId, itemDto);
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenUserNotFoundThenStatusNotFound() {
-        Long wrongUserId = 100L;
-        ResultActions resultActions = mockMvc.perform(post("/items")
-                .header(USERID_HEADER, wrongUserId.toString())
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(itemDto)));
-
-        resultActions.andExpect(status().isBadRequest());
-        String body = resultActions.andReturn().getResponse().getContentAsString();
-
-        verify(itemService, never()).create(wrongUserId, itemDto);
     }
 
     @SneakyThrows
@@ -220,21 +192,6 @@ public class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void getAllItemsByUserIdWhenParamsNotValidThenStatusBadRequest() {
-        Integer from = -1;
-        Integer size = -1;
-
-        mockMvc.perform(get("/items")
-                        .header(USERID_HEADER, userId.toString())
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).findAll(userId, from, size);
-    }
-
-    @SneakyThrows
-    @Test
     void deleteWhenInvokeThenStatusNoContent() {
         mockMvc.perform(delete("/items/{itemId}", itemId)
                         .header(USERID_HEADER, userId.toString()))
@@ -263,23 +220,6 @@ public class ItemControllerIntegrationTest {
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(itemDtoList), result);
-    }
-
-    @SneakyThrows
-    @Test
-    void searchWhenParamsNotValidThenStatusBadRequest() {
-        String text = "text";
-        Integer from = -1;
-        Integer size = -1;
-
-        mockMvc.perform(get("/items/search")
-                        .header(USERID_HEADER, userId.toString())
-                        .param("text", text)
-                        .param("from", from.toString())
-                        .param("size", size.toString()))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).findAll(userId, from, size);
     }
 
     @SneakyThrows

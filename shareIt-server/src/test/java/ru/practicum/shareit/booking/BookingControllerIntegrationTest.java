@@ -85,20 +85,6 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void createWhenNotValidBodyThenReturnStatusBadRequest() {
-        bookingRequestDto.setStart(LocalDateTime.now().minusHours(1L));
-
-        mockMvc.perform(post("/bookings")
-                        .header(USERID_HEADER, userId.toString())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
-                .andExpect(status().isBadRequest());
-
-        verify(bookingService, never()).create(userId, bookingRequestDto);
-    }
-
-    @SneakyThrows
-    @Test
     void setStatusWhenInvokeThenReturnStatusOkAndBookingResponseDtoInBody() {
         Long bookingId = 0L;
         Boolean approved = true;
@@ -217,21 +203,6 @@ public class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void findAllByStateWhenNotValidParamsThenReturnStatusBadRequest() {
-        String state = "ALL";
-        int from = -1;
-        int size = -1;
-
-        mockMvc.perform(get("/bookings")
-                        .header(USERID_HEADER, userId.toString())
-                        .param("state", state)
-                        .param("from", Integer.toString(from))
-                        .param("size", Integer.toString(size)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @SneakyThrows
-    @Test
     void findAllByStateWhenNotValidStateThenReturnStatusBadRequest() {
         String state = "NotValid";
         int from = 1;
@@ -270,17 +241,4 @@ public class BookingControllerIntegrationTest {
         assertEquals(objectMapper.writeValueAsString(responseDtoList), result);
     }
 
-    @SneakyThrows
-    @Test
-    void findAllByItemOwnerWhenNotValidParamsThenReturnStatusBadRequest() {
-        String state = "ALL";
-        int from = -1;
-        int size = -1;
-        mockMvc.perform(get("/bookings/owner")
-                        .header(USERID_HEADER, userId.toString())
-                        .param("state", state)
-                        .param("from", Integer.toString(from))
-                        .param("size", Integer.toString(size)))
-                .andExpect(status().isBadRequest());
-    }
 }

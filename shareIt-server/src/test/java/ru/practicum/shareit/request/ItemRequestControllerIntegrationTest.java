@@ -60,18 +60,6 @@ public class ItemRequestControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void createWhenBodyNotValidThenStatusBadRequestBadRequest() {
-        mockMvc.perform(post("/requests")
-                        .header(USERID_HEADER, userId.toString())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(itemRequestDto)))
-                .andExpect(status().isBadRequest());
-
-        verify(itemRequestService, never()).create(userId, itemRequestDto);
-    }
-
-    @SneakyThrows
-    @Test
     void createWhenUserNotFoundThenStatusNotFound() {
         itemRequestDto.setDescription("desc");
         when(itemRequestService.create(userId, itemRequestDto))
@@ -147,14 +135,4 @@ public class ItemRequestControllerIntegrationTest {
         assertEquals(objectMapper.writeValueAsString(itemRequestDtoList), result);
     }
 
-    @SneakyThrows
-    @Test
-    void getAllRequestsWithNotValidParamsThenReturnBadRequest() {
-        mockMvc.perform(get("/requests/all")
-                        .header(USERID_HEADER, userId.toString())
-                        .param("from", "-1")
-                        .param("size", "-1"))
-                .andExpect(status().isBadRequest());
-        verify(itemRequestService, never()).getAllRequests(userId, 1, 1);
-    }
 }

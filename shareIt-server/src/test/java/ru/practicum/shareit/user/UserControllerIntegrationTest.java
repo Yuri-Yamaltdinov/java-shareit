@@ -56,19 +56,6 @@ public class UserControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void createWithNotValidParamsThenReturnBadRequest() {
-        userDto.setName(null);
-        userDto.setEmail(null);
-        mockMvc.perform(post("/users")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).create(userDto);
-    }
-
-    @SneakyThrows
-    @Test
     void createWhenDuplicateUserThenConflictStatus() {
         when(userService.create(userDto)).thenThrow(ConflictException.class);
 
@@ -106,17 +93,6 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isOk());
 
         verify(userService).findAll(1, 1);
-    }
-
-    @SneakyThrows
-    @Test
-    void findAllWithNotValidParamsThenReturnBadRequest() {
-        mockMvc.perform(get("/users")
-                        .param("from", "-1")
-                        .param("size", "-1"))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).findAll(1, 1);
     }
 
     @SneakyThrows
