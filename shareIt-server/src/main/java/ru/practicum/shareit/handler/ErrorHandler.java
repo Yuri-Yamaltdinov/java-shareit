@@ -12,7 +12,6 @@ import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 
-import javax.validation.ConstraintViolationException;
 import java.util.Objects;
 
 @RestControllerAdvice
@@ -40,13 +39,6 @@ public class ErrorHandler {
     public ErrorResponse handlerMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("400 — Method Argument Not Valid");
         return new ErrorResponse(String.format("Неверный аргумент метода: " + Objects.requireNonNull(e.getMessage())));
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
-        log.error("400 — Constraint Violation");
-        return new ErrorResponse(String.format("Нарушение ограничений: " + Objects.requireNonNull(e.getMessage())));
     }
 
     @ExceptionHandler

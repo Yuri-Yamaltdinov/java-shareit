@@ -6,7 +6,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public class ItemRequest {
     private Long id;
 
     @Column(length = 512)
-    @NotBlank
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
