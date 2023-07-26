@@ -9,10 +9,7 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingsAndComments;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.util.PostRequestValidationGroup;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -25,10 +22,9 @@ public class ItemController {
     public static final String USERID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
-    @Validated(PostRequestValidationGroup.class)
     @ResponseStatus(HttpStatus.CREATED)
     public ItemDto create(@RequestHeader(USERID_HEADER) Long userId,
-                          @RequestBody @Valid ItemDto itemDto) {
+                          @RequestBody ItemDto itemDto) {
         log.info("Got request to POST item {}", itemDto);
         return itemService.create(userId, itemDto);
     }
@@ -36,8 +32,8 @@ public class ItemController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDtoWithBookingsAndComments> findAll(@RequestHeader(USERID_HEADER) Long userId,
-                                                        @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                                        @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+                                                        @RequestParam(defaultValue = "0") Integer from,
+                                                        @RequestParam(defaultValue = "10") Integer size) {
         log.info("Got request to GET all items by user id {}", userId);
         return itemService.findAll(userId, from, size);
     }
@@ -71,8 +67,8 @@ public class ItemController {
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> search(@RequestHeader(USERID_HEADER) Long userId,
                                 @RequestParam("text") String text,
-                                @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+                                @RequestParam(defaultValue = "0") Integer from,
+                                @RequestParam(defaultValue = "10") Integer size) {
         log.info("Got request to GET items with text {}", text);
         return itemService.search(userId, text, from, size);
     }
@@ -81,7 +77,7 @@ public class ItemController {
     @ResponseStatus(HttpStatus.OK)
     public CommentDto createComment(@RequestHeader(USERID_HEADER) Long userId,
                                     @PathVariable("itemId") Long itemId,
-                                    @RequestBody @Valid CommentDto commentDto) {
+                                    @RequestBody CommentDto commentDto) {
         log.info("Got request to POST comment {}", commentDto);
         return itemService.createComment(userId, itemId, commentDto);
     }
