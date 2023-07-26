@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.item.ItemController.USERID_HEADER;
 
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerIntegrationTest {
@@ -51,7 +52,7 @@ class BookingControllerIntegrationTest {
         int from = 1;
         int size = 1;
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", Integer.toString(from))
                         .param("size", Integer.toString(size)))
@@ -67,7 +68,7 @@ class BookingControllerIntegrationTest {
         int from = 1;
         int size = 1;
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", Integer.toString(from))
                         .param("size", Integer.toString(size)))
@@ -102,7 +103,7 @@ class BookingControllerIntegrationTest {
 
 
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", Integer.toString(from))
                         .param("size", Integer.toString(size)))
@@ -116,7 +117,7 @@ class BookingControllerIntegrationTest {
         String state = "ALL";
         int size = 1;
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", from.toString())
                         .param("size", Integer.toString(size)))
@@ -132,7 +133,7 @@ class BookingControllerIntegrationTest {
         String state = "ALL";
         int from = 1;
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", Integer.toString(from))
                         .param("size", size.toString()))
@@ -145,7 +146,7 @@ class BookingControllerIntegrationTest {
     @Test
     void createWhenInvokeThenStatus2xx() {
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingDto)))
                 .andExpect(status().is2xxSuccessful());
@@ -168,7 +169,7 @@ class BookingControllerIntegrationTest {
     @Test
     void createWhenNotBodyThenStatusBadRequest() {
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json"))
                 .andExpect(status().isBadRequest());
 
@@ -182,7 +183,7 @@ class BookingControllerIntegrationTest {
         bookingDto.setItemId(itemId);
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingDto)))
                 .andExpect(status().isBadRequest());
@@ -196,7 +197,7 @@ class BookingControllerIntegrationTest {
         bookingDto.setStart(LocalDateTime.now().minusHours(24L));
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingDto)))
                 .andExpect(status().isBadRequest());
@@ -210,7 +211,7 @@ class BookingControllerIntegrationTest {
         bookingDto.setStart(null);
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingDto)))
                 .andExpect(status().isBadRequest());
@@ -224,7 +225,7 @@ class BookingControllerIntegrationTest {
         bookingDto.setEnd(LocalDateTime.now().minusHours(24L));
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingDto)))
                 .andExpect(status().isBadRequest());
@@ -238,7 +239,7 @@ class BookingControllerIntegrationTest {
         bookingDto.setEnd(null);
 
         mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingDto)))
                 .andExpect(status().isBadRequest());
@@ -252,7 +253,7 @@ class BookingControllerIntegrationTest {
     void getBookingByIdWhenInvokeThenStatusOk() {
         Long bookingId = 0L;
         mockMvc.perform(get("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isOk());
 
         verify(bookingClient).getBookingById(userId, bookingId);
@@ -266,7 +267,7 @@ class BookingControllerIntegrationTest {
                 .thenReturn(ResponseEntity.notFound().build());
 
         mockMvc.perform(get("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isNotFound());
     }
 
@@ -288,7 +289,7 @@ class BookingControllerIntegrationTest {
         int from = 1;
         int size = 1;
         mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", Integer.toString(from))
                         .param("size", Integer.toString(size)))
@@ -304,7 +305,7 @@ class BookingControllerIntegrationTest {
         int from = 1;
         int size = 1;
         mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", Integer.toString(from))
                         .param("size", Integer.toString(size)))
@@ -339,7 +340,7 @@ class BookingControllerIntegrationTest {
 
 
         mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", Integer.toString(from))
                         .param("size", Integer.toString(size)))
@@ -353,7 +354,7 @@ class BookingControllerIntegrationTest {
         String state = "ALL";
         int size = 1;
         mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", from.toString())
                         .param("size", Integer.toString(size)))
@@ -369,7 +370,7 @@ class BookingControllerIntegrationTest {
         String state = "ALL";
         int from = 1;
         mockMvc.perform(get("/bookings/owner")
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("state", state)
                         .param("from", Integer.toString(from))
                         .param("size", size.toString()))
@@ -385,7 +386,7 @@ class BookingControllerIntegrationTest {
         boolean approved = true;
 
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString())
+                        .header(USERID_HEADER, userId.toString())
                         .param("approved", Boolean.toString(approved)))
                 .andExpect(status().isOk());
     }
@@ -409,7 +410,7 @@ class BookingControllerIntegrationTest {
         Long bookingId = 1L;
 
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
-                        .header("X-Sharer-User-Id", userId.toString()))
+                        .header(USERID_HEADER, userId.toString()))
                 .andExpect(status().isBadRequest());
 
         verify(bookingClient, never()).setStatus(anyLong(), anyLong(), any());
