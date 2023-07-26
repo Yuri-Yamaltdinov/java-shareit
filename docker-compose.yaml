@@ -17,7 +17,7 @@ services:
       #- TZ=Europe/Moscow
 
   server:
-    build: shareit-server/
+    build: shareit-server
     image: server
     container_name: server
     ports:
@@ -31,7 +31,7 @@ services:
       #- TZ=Europe/Moscow
 
   gateway:
-    build: shareit-gateway/
+    build: shareit-gateway
     image: gateway
     container_name: gateway
     ports:
