@@ -1,0 +1,43 @@
+# версия Docker Compose
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14.3-alpine
+    container_name: db
+    ports:
+      - "6541:5432"
+    volumes:
+      - /var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=shareit
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      #- TZ=Europe/Moscow
+
+  server:
+    build: ./shareIt-server
+    image: server
+    container_name: server
+    ports:
+      - "9090:9090"
+    depends_on:
+      - db
+    environment:
+      - DB_URL=jdbc:postgresql://db:5432/shareit
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      #- TZ=Europe/Moscow
+
+  gateway:
+    build: ./shareIt-gateway
+    image: gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server
+    environment:
+      #- SHAREIT_SERVER_PORT=9090
+      - SHAREIT_SERVER_URL=http://server:9090
+      #- TZ=Europe/Moscow
