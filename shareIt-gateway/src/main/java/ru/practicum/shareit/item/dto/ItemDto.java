@@ -6,6 +6,7 @@ import ru.practicum.shareit.util.PostRequestValidationGroup;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 @Data
 @Builder
@@ -17,5 +18,6 @@ public class ItemDto {
     private String description;
     @NotNull(message = "Field available has to be filled.", groups = PostRequestValidationGroup.class)
     private Boolean available;
+    @Positive(message = "Field request id has to be positive")
     private Long requestId;
 }

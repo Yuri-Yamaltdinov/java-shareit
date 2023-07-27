@@ -22,6 +22,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.projectlombok.version>1.18.24</org.projectlombok.version>
 		<org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
+		<org.postgresql.version>42.3.2</org.postgresql.version>
+		<org.jetbrains.version>20.1.0</org.jetbrains.version>
+		<org.junit.jupiter.version>5.9.2</org.junit.jupiter.version>
 	</properties>
 
 	<modules>

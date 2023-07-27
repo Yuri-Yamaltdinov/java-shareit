@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.practicum.shareit.item.ItemController.USERID_HEADER;
 
 @WebMvcTest(controllers = BookingController.class)
-class BookingControllerIntegrationTest {
+public class BookingControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -45,9 +45,8 @@ class BookingControllerIntegrationTest {
         userId = 0L;
     }
 
-    @SneakyThrows
     @Test
-    void findAllByStateWhenInvokeThenStatusOk() {
+    void findAllByStateWhenInvokeThenStatusOk() throws Exception {
         String state = "ALL";
         int from = 1;
         int size = 1;
@@ -61,9 +60,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient).findAllByState(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @Test
-    void findAllByStateWhenStateNotValidThenStatusBadRequest() {
+    void findAllByStateWhenStateNotValidThenStatusBadRequest() throws Exception {
         String state = "NOtValid";
         int from = 1;
         int size = 1;
@@ -77,9 +75,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).findAllByState(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @Test
-    void findAllByStateWhenNotHeaderUserIdThenStatusBadRequest() {
+    void findAllByStateWhenNotHeaderUserIdThenStatusBadRequest() throws Exception {
         String state = "All";
         int from = 1;
         int size = 1;
@@ -92,9 +89,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).findAllByState(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @Test
-    void findAllByStateWhenResponseStatusNotFoundThenStatusNotFound() {
+    void findAllByStateWhenResponseStatusNotFoundThenStatusNotFound() throws Exception {
         String state = "ALL";
         int from = 1;
         int size = 1;
@@ -110,10 +106,9 @@ class BookingControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    @SneakyThrows
     @ParameterizedTest
     @ValueSource(ints = {-1, -15, Integer.MIN_VALUE})
-    void findAllByStateWhenNotValidParamFromThenStatusBadRequest(Integer from) {
+    void findAllByStateWhenNotValidParamFromThenStatusBadRequest(Integer from) throws Exception {
         String state = "ALL";
         int size = 1;
         mockMvc.perform(get("/bookings")
@@ -126,10 +121,9 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).findAllByState(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @ParameterizedTest
     @ValueSource(ints = {0, -1, -15, Integer.MIN_VALUE})
-    void findAllByStateWhenNotValidParamSizeThenStatusBadRequest(Integer size) {
+    void findAllByStateWhenNotValidParamSizeThenStatusBadRequest(Integer size) throws Exception {
         String state = "ALL";
         int from = 1;
         mockMvc.perform(get("/bookings")
@@ -142,9 +136,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).findAllByState(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @Test
-    void createWhenInvokeThenStatus2xx() {
+    void createWhenInvokeThenStatus2xx() throws Exception {
         mockMvc.perform(post("/bookings")
                         .header(USERID_HEADER, userId.toString())
                         .contentType("application/json")
@@ -154,9 +147,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient).create(anyLong(), any());
     }
 
-    @SneakyThrows
     @Test
-    void createWhenNotHeaderUserIdThenStatusBadRequest() {
+    void createWhenNotHeaderUserIdThenStatusBadRequest() throws Exception {
         mockMvc.perform(post("/bookings")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(bookingDto)))
@@ -165,9 +157,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).create(anyLong(), any());
     }
 
-    @SneakyThrows
     @Test
-    void createWhenNotBodyThenStatusBadRequest() {
+    void createWhenNotBodyThenStatusBadRequest() throws Exception {
         mockMvc.perform(post("/bookings")
                         .header(USERID_HEADER, userId.toString())
                         .contentType("application/json"))
@@ -191,9 +182,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).create(anyLong(), any());
     }
 
-    @SneakyThrows
     @Test
-    void createWhenNotBodyNotValidStartThenStatusBadRequest() {
+    void createWhenNotBodyNotValidStartThenStatusBadRequest() throws Exception {
         bookingDto.setStart(LocalDateTime.now().minusHours(24L));
 
         mockMvc.perform(post("/bookings")
@@ -205,9 +195,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).create(anyLong(), any());
     }
 
-    @SneakyThrows
     @Test
-    void createWhenNotBodyNotStartThenStatusBadRequest() {
+    void createWhenNotBodyNotStartThenStatusBadRequest() throws Exception {
         bookingDto.setStart(null);
 
         mockMvc.perform(post("/bookings")
@@ -219,9 +208,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).create(anyLong(), any());
     }
 
-    @SneakyThrows
     @Test
-    void createWhenNotBodyNotValidEndThenStatusBadRequest() {
+    void createWhenNotBodyNotValidEndThenStatusBadRequest() throws Exception {
         bookingDto.setEnd(LocalDateTime.now().minusHours(24L));
 
         mockMvc.perform(post("/bookings")
@@ -233,9 +221,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).create(anyLong(), any());
     }
 
-    @SneakyThrows
     @Test
-    void createWhenNotBodyNotEndThenStatusBadRequest() {
+    void createWhenNotBodyNotEndThenStatusBadRequest() throws Exception {
         bookingDto.setEnd(null);
 
         mockMvc.perform(post("/bookings")
@@ -247,10 +234,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).create(anyLong(), any());
     }
 
-
-    @SneakyThrows
     @Test
-    void getBookingByIdWhenInvokeThenStatusOk() {
+    void getBookingByIdWhenInvokeThenStatusOk() throws Exception {
         Long bookingId = 0L;
         mockMvc.perform(get("/bookings/{bookingId}", bookingId)
                         .header(USERID_HEADER, userId.toString()))
@@ -259,9 +244,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient).getBookingById(userId, bookingId);
     }
 
-    @SneakyThrows
     @Test
-    void getBookingByIdWhenResponseStatusNotFoundThenStatusNotFound() {
+    void getBookingByIdWhenResponseStatusNotFoundThenStatusNotFound() throws Exception {
         Long bookingId = 0L;
         when(bookingClient.getBookingById(anyLong(), anyLong()))
                 .thenReturn(ResponseEntity.notFound().build());
@@ -271,9 +255,8 @@ class BookingControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    @SneakyThrows
     @Test
-    void getBookingByIdWhenNotHeaderUserIdThenStatusNotFound() {
+    void getBookingByIdWhenNotHeaderUserIdThenStatusNotFound() throws Exception {
         Long bookingId = 0L;
         when(bookingClient.getBookingById(anyLong(), anyLong()))
                 .thenReturn(ResponseEntity.notFound().build());
@@ -282,9 +265,8 @@ class BookingControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @SneakyThrows
     @Test
-    void findAllByItemOwnerWhenInvokeThenStatusOk() {
+    void findAllByItemOwnerWhenInvokeThenStatusOk() throws Exception {
         String state = "ALL";
         int from = 1;
         int size = 1;
@@ -298,9 +280,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient).findAllByItemOwner(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @Test
-    void findAllByItemOwnerWhenStateNotValidThenStatusBadRequest() {
+    void findAllByItemOwnerWhenStateNotValidThenStatusBadRequest() throws Exception {
         String state = "NOtValid";
         int from = 1;
         int size = 1;
@@ -314,9 +295,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).findAllByItemOwner(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @Test
-    void findAllByItemOwnerWhenNotHeaderUserIdThenStatusBadRequest() {
+    void findAllByItemOwnerWhenNotHeaderUserIdThenStatusBadRequest() throws Exception {
         String state = "All";
         int from = 1;
         int size = 1;
@@ -329,9 +309,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).findAllByItemOwner(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @Test
-    void findAllByItemOwnerWhenResponseStatusNotFoundThenStatusNotFound() {
+    void findAllByItemOwnerWhenResponseStatusNotFoundThenStatusNotFound() throws Exception {
         String state = "ALL";
         int from = 1;
         int size = 1;
@@ -347,10 +326,9 @@ class BookingControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    @SneakyThrows
     @ParameterizedTest
     @ValueSource(ints = {-1, -15, Integer.MIN_VALUE})
-    void findAllByItemOwnerWhenNotValidParamFromThenStatusBadRequest(Integer from) {
+    void findAllByItemOwnerWhenNotValidParamFromThenStatusBadRequest(Integer from) throws Exception {
         String state = "ALL";
         int size = 1;
         mockMvc.perform(get("/bookings/owner")
@@ -363,10 +341,9 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).findAllByItemOwner(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @ParameterizedTest
     @ValueSource(ints = {0, -1, -15, Integer.MIN_VALUE})
-    void findAllByItemOwnerWhenNotValidParamSizeThenStatusBadRequest(Integer size) {
+    void findAllByItemOwnerWhenNotValidParamSizeThenStatusBadRequest(Integer size) throws Exception {
         String state = "ALL";
         int from = 1;
         mockMvc.perform(get("/bookings/owner")
@@ -379,9 +356,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).findAllByItemOwner(anyLong(), any(), any(), any());
     }
 
-    @SneakyThrows
     @Test
-    void setStatusWhenInvokeThenStatusOk() {
+    void setStatusWhenInvokeThenStatusOk() throws Exception {
         Long bookingId = 1L;
         boolean approved = true;
 
@@ -391,9 +367,8 @@ class BookingControllerIntegrationTest {
                 .andExpect(status().isOk());
     }
 
-    @SneakyThrows
     @Test
-    void setStatusWhenNotHeaderUserIdThenStatusBadRequest() {
+    void setStatusWhenNotHeaderUserIdThenStatusBadRequest() throws Exception {
         Long bookingId = 1L;
         boolean approved = true;
 
@@ -404,9 +379,8 @@ class BookingControllerIntegrationTest {
         verify(bookingClient, never()).setStatus(anyLong(), anyLong(), any());
     }
 
-    @SneakyThrows
     @Test
-    void setStatusWhenNotApprovedThenStatusBadRequest() {
+    void setStatusWhenNotApprovedThenStatusBadRequest() throws Exception {
         Long bookingId = 1L;
 
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
